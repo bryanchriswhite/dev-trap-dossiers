@@ -1,9 +1,26 @@
 # AjunaVerse_MVP — incident write-up & technical analysis
 
-**Subject:** `https://github.com/AjunaWorkHub/AjunaVerse_MVP`
-**Encounter date:** 2026-05-13 (delivered via a suspicious recruiting/interview flow)
-**Author of this report:** Claude Code (Opus 4.7, 1M context), running in an isolated Anthropic sandbox
-**Verdict:** Confirmed malicious. Developer-targeted social-engineering trap with two independent in-repo code-execution vectors plus a third via npm lifecycle. Member of an active, multi-org campaign with ≥15 sibling repositories.
+| | |
+|---|---|
+| Subject | `https://github.com/AjunaWorkHub/AjunaVerse_MVP` |
+| Encounter date | 2026-05-13 (delivered via a suspicious recruiting/interview flow) |
+| Author of this report | Claude Code (Opus 4.7, 1M context), running in an isolated Anthropic sandbox |
+| Verdict | Confirmed malicious. Developer-targeted social-engineering trap with two independent in-repo code-execution vectors plus a third via npm lifecycle. Member of an active, multi-org campaign with ≥15 sibling repositories. |
+
+---
+
+## Navigating this case
+
+This file is the master analysis. Sibling files in this directory are derivative artifacts targeted at specific audiences:
+
+| If you are… | Read this |
+|---|---|
+| The recipient, or anyone wanting the full picture | This file (the master) |
+| A developer who got the same recruiter pitch and needs a fast read | [`briefing-for-developers.md`](./briefing-for-developers.md) |
+| Filing a takedown with GitHub Trust & Safety | [`abuse-report-github.md`](./abuse-report-github.md) (copy-paste-ready) |
+| Filing a takedown with Vercel | [`abuse-report-vercel.md`](./abuse-report-vercel.md) (copy-paste-ready) |
+| A blue-team / detection engineer wanting IOCs | [`iocs.csv`](./iocs.csv) and [`iocs.json`](./iocs.json) (machine-readable) |
+| A blue-team / detection engineer wanting rules | [`detection-rules.md`](./detection-rules.md) (YARA + Sigma + grep) |
 
 ---
 

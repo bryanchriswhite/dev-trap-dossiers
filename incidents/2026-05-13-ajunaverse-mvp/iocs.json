@@ -1,0 +1,111 @@
+{
+  "incident": "2026-05-13-ajunaverse-mvp",
+  "title": "AjunaVerse_MVP developer-targeted RCE/stealer campaign",
+  "first_observed": "2026-05-13",
+  "verdict": "confirmed-malicious",
+  "ttp_cluster": "Contagious Interview (fake recruiter -> clone repo -> npm install/start -> stealer-loader)",
+  "summary": "Three-headed loader in a decoy React + Express Web3 metaverse repo. VS Code tasks.json auto-runs on folder open, npm `prepare` lifecycle auto-runs on `npm install`, and the Express auth route POSTs process.env to a base64-obfuscated Vercel C2 and `new Function`-executes the response.",
+  "domains": [
+    {
+      "value": "vscode-settings-0506.vercel.app",
+      "role": "stage-1 shell-payload C2",
+      "endpoints": ["/api/settings/mac", "/api/settings/linux", "/api/settings/windows"],
+      "confidence": "high"
+    },
+    {
+      "value": "ip-core-api-one.vercel.app",
+      "role": "stage-2 Node-loader C2 + env-exfil sink",
+      "endpoints": ["/api"],
+      "magic_header": "x-app-request: ip-check",
+      "confidence": "high"
+    }
+  ],
+  "domain_patterns": [
+    {"pattern": "vscode-settings-*.vercel.app", "note": "-NNNN suffix is plausibly campaign-date-encoded", "confidence": "medium"},
+    {"pattern": "ip-core-api-*.vercel.app", "note": "-one suffix implies -two/-three/etc.", "confidence": "medium"}
+  ],
+  "ipv4": [
+    {"value": "64.29.17.131", "source": "DNS A for ip-core-api-one.vercel.app", "note": "Vercel edge; rotates"},
+    {"value": "64.29.17.195", "source": "DNS A for vscode-settings-0506.vercel.app", "note": "Vercel edge; rotates"},
+    {"value": "216.198.79.131", "source": "DNS A for ip-core-api-one.vercel.app", "note": "Vercel edge; rotates"},
+    {"value": "216.198.79.195", "source": "DNS A for vscode-settings-0506.vercel.app", "note": "Vercel edge; rotates"}
+  ],
+  "github": {
+    "organizations": [
+      {"login": "AjunaWorkHub", "id": 276264331, "created": "2026-04-27", "confidence": "high"},
+      {"login": "AetSoftWorkHub", "id": 276275397, "created": "2026-04-27", "confidence": "high"},
+      {"login": "DLabsHungary-Hub9", "confidence": "medium"}
+    ],
+    "users": [
+      {"login": "GitWorkHub9", "id": 272514006, "role": "primary committer", "confidence": "high"},
+      {"login": "GitWorkHub99", "id": 213663943, "role": "credibility-farming + sibling campaign repo", "confidence": "high"}
+    ],
+    "repositories": {
+      "current_generation_loader_path": "server/routes/api/auth.js",
+      "current_generation": [
+        "AjunaWorkHub/AjunaVerse_MVP",
+        "AetSoftWorkHub/AetSoft_MVP",
+        "roamanbuild/OnyxVerse",
+        "DLabsHungary-Hub9/DLabs-Platform-MVP2",
+        "khaleb-dev/jackpot",
+        "rony1235/Jp-Soccer",
+        "mspkteam/williampotter"
+      ],
+      "earlier_generation_loader_path": "app/controllers/frontController.js",
+      "earlier_generation": [
+        "Andrii-888/0gRollplay",
+        "prahaladbelavadi/CoinLocatorDemo",
+        "sky-cook/tokentradingdapp",
+        "WilliamSuhosky/Property-Voting-DApp",
+        "artemus-jarrett/blockchain-voting-system",
+        "TechByteX/NitroGem",
+        "jamesm-dev/NitroGem",
+        "dappfusion/defi-real-estate",
+        "InvescoHub/defi-real-estate"
+      ],
+      "earlier_generation_note": "Some earlier-generation repos may be on compromised legitimate accounts rather than attacker-owned."
+    }
+  },
+  "emails": [
+    {"value": "fatihafariya8+2@gmail.com", "source": "git log AjunaVerse_MVP", "note": "+N Gmail-alias convention implies parallel personas"}
+  ],
+  "hashes": {
+    "git_blob_sha1": [
+      {"value": "998c34f02d94169a546b4c36123d552dd14f985b", "path": ".vscode/tasks.json", "seen_in": ["AjunaWorkHub/AjunaVerse_MVP", "AetSoftWorkHub/AetSoft_MVP"], "note": "Bit-identical across both repos"}
+    ],
+    "git_commit_sha1": [
+      {"value": "bac3362000a9332a490c763feb847995ea412b46", "repo": "AjunaWorkHub/AjunaVerse_MVP", "ref": "main", "as_of": "2026-05-13"}
+    ]
+  },
+  "http_indicators": [
+    {"header": "x-app-request: ip-check", "direction": "client->C2", "description": "Magic header sent by the in-repo loader to ip-core-api-one.vercel.app/api"},
+    {"header": "x-deny-reason: host_not_allowed", "direction": "C2->client", "description": "Returned by both C2 hosts to non-allowlisted clients; useful as a network-telemetry signal that a host was probing the C2"},
+    {"status": "HTTP 403", "body": "Host not in allowlist", "description": "Identical 21-byte response from every probed path on both hosts"}
+  ],
+  "code_patterns": [
+    {"language": "javascript", "pattern": "new Function(\"require\", response.data)", "confidence": "high"},
+    {"language": "javascript", "pattern": "verify(setApiKey(process.env.AUTH_API))", "confidence": "high"},
+    {"language": "javascript", "regex": "axios\\.post\\([^,]+,\\s*\\{\\s*\\.\\.\\.process\\.env\\s*\\}", "confidence": "high"},
+    {"language": "json", "pattern": "\"runOn\":\"folderOpen\" + \"reveal\":\"silent\" + curl|bash", "context": ".vscode/tasks.json", "confidence": "high"},
+    {"language": "dotenv", "regex": "AUTH_API=aHR0c[A-Za-z0-9+/=]+", "confidence": "medium"},
+    {"language": "javascript", "pattern": "Aborting mempool scan due to failed API verification.", "confidence": "high", "note": "Misleading log string used as semantic camouflage"}
+  ],
+  "lures": [
+    "Web3 metaverse MVP",
+    "DeFi platform",
+    "Play-to-earn / crypto-gaming MVP",
+    "Sports-betting dApp",
+    "Real-estate tokenization dApp",
+    "Voting / governance dApp"
+  ],
+  "delivery_chain": [
+    "1. Fake recruiter cold outreach (LinkedIn / Calendly / Telegram / Discord / email)",
+    "2. Pitch as Web3 contract or full-time role",
+    "3. Send link to GitHub repository ahead of interview",
+    "4. Instruction: clone, `npm install`, `npm start`, `open in VS Code`",
+    "5. Repo's VS Code tasks.json auto-runs OS-specific curl|bash on folder open",
+    "6. Or: npm install triggers `prepare` lifecycle which boots the Express server",
+    "7. Express server top-level POSTs process.env to ip-core-api-one.vercel.app/api and `new Function`-executes the response",
+    "8. Stage-2 likely a stealer/persistence agent (not retrieved due to target-IP allowlist gate)"
+  ]
+}
