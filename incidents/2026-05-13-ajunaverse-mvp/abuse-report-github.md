@@ -85,6 +85,13 @@ Reporting on behalf of: <YOUR_REPO_URL> (one of the cluster's known repositories
 This report is paired with five additional per-entity filings (against three organizations: AjunaWorkHub, AetSoftWorkHub, DLabsHungary-Hub9; and two user accounts: GitWorkHub9, GitWorkHub99). Please cross-reference for cluster-wide handling.
 
 
+FULL CASE FILE
+
+A public, regularly-maintained case file for this campaign -- including the annotated technical analysis, machine-readable IOCs (CSV/JSON), and detection rules (YARA, Sigma, grep) -- is at:
+
+  https://github.com/bryanchriswhite/dev-trap-dossiers
+
+
 KNOWN CAMPAIGN REPOSITORIES
 
 The repositories are listed below in two groups based on whether the OWNING ACCOUNT is operator-controlled (suspend the account) or likely a compromised legitimate developer's account (take down the repo but DO NOT suspend the account -- the account holder is a victim of a different attack). All repos carry verified malware-loader code and warrant takedown regardless of account status.
@@ -235,6 +242,9 @@ Please cross-reference for cluster-wide handling.
 
 This filing is one of three per-org filings (against AjunaWorkHub, AetSoftWorkHub, DLabsHungary-Hub9) plus two per-user filings (against GitWorkHub9, GitWorkHub99). Together with the main repo report, six filings cover the cluster.
 
+Public case file (technical analysis, IOCs, detection rules):
+  https://github.com/bryanchriswhite/dev-trap-dossiers
+
 
 WHY THIS ORG QUALIFIES AS OPERATOR-CONTROLLED
 
@@ -284,6 +294,9 @@ A campaign-level abuse report covering the full technical mechanism and the ~15 
 Please cross-reference for cluster-wide handling.
 
 This filing is one of two per-user filings (against GitWorkHub9 and GitWorkHub99) plus three per-org filings (against AjunaWorkHub, AetSoftWorkHub, DLabsHungary-Hub9). Together with the main repo report, six filings cover the cluster.
+
+Public case file (technical analysis, IOCs, detection rules):
+  https://github.com/bryanchriswhite/dev-trap-dossiers
 
 
 WHY THIS USER QUALIFIES AS OPERATOR-CONTROLLED

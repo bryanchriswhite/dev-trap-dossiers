@@ -35,6 +35,13 @@ SUMMARY
 Two Vercel *.vercel.app deployments are operating as command-and-control servers in an active, currently-live developer-targeting malware campaign. The campaign distributes RCE and credential-theft payloads via at least 15 GitHub repositories across three organizations and several individual accounts; both Vercel hosts are referenced directly from the malicious GitHub repositories and serve the entire cluster, not just a single source repo. A separate abuse report has been filed with GitHub Trust & Safety covering the repository side.
 
 
+FULL CASE FILE
+
+A public, regularly-maintained case file for this campaign -- including the annotated technical analysis, machine-readable IOCs (CSV/JSON), and detection rules (YARA, Sigma, grep) -- is at:
+
+  https://github.com/bryanchriswhite/dev-trap-dossiers
+
+
 HOSTNAMES AND IPS
 
 Host: vscode-settings-0506.vercel.app
