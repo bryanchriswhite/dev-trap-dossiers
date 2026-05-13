@@ -28,7 +28,7 @@ Placeholders appear in the code blocks as `[descriptive label in square brackets
 
 The org and user filings (#2–#6) additionally use `[org login]` and `[user login]` — listed at the top of each of those code blocks.
 
-> On the rendered GitHub view of this file, hover over each `text` code block to get GitHub's click-to-copy icon — you'll get the verbatim text, not the rendered version. **For each filing, copy the matching subject + body code blocks and do the placeholder fill-in before pasting.**
+> On the rendered GitHub view of this file, hover over each `text` code block to get GitHub's click-to-copy icon — you'll get the verbatim text, not the rendered version. **For each filing, copy the matching body code block, do the placeholder fill-in, and paste it into the form.**
 
 ---
 
@@ -36,16 +36,16 @@ The org and user filings (#2–#6) additionally use `[org login]` and `[user log
 
 Work top-down. The first filing is the content/malware report and carries the full technical evidence; filings #2–#6 are the per-entity account-level reports.
 
-| # | Target | Action type | URL to paste in the form's "what are you reporting" field | Abuse category to select | Easiest entry point (pre-fills the URL) | Use these code blocks |
+| # | Target | Action type | URL to paste in the form's "what are you reporting" field | Abuse category to select | Easiest entry point (pre-fills the URL) | Body to paste |
 |---|---|---|---|---|---|---|
-| 1 | The repo you were pointed at | Content takedown | `[reported repository URL]` | **Malware or exploits** | Go directly to **https://github.com/contact/report-abuse** and paste the URL. (There's no convenient per-repo "Report" button; for repo reports you always use the contact form directly.) | [Subject — main](#subject--main-report) + [Body — main](#body--main-report) |
-| 2 | Org `AjunaWorkHub` | Account-level report | `https://github.com/AjunaWorkHub` | Account-level (use **Other** or the closest matching option; explain in the body) | Go to **https://github.com/AjunaWorkHub** → click the **"…"** kebab menu near the top right → **"Report abuse"** — this opens the contact form with the org URL pre-filled. | [Subject — org](#subject--org-filings) + [Body — org](#body--org-filings) |
-| 3 | Org `AetSoftWorkHub` | Account-level report | `https://github.com/AetSoftWorkHub` | (same as #2) | Same flow as #2, starting from **https://github.com/AetSoftWorkHub** | (same as #2) |
-| 4 | Org `DLabsHungary-Hub9` | Account-level report | `https://github.com/DLabsHungary-Hub9` | (same as #2) | Same flow, starting from **https://github.com/DLabsHungary-Hub9** | (same as #2) |
-| 5 | User `GitWorkHub9` | Account-level report | `https://github.com/GitWorkHub9` | Account-level (use **Other** or the closest matching option) | Go to **https://github.com/GitWorkHub9** → click **"Block or report user"** below the profile picture → **"Report abuse"** — opens the contact form with the user URL pre-filled. | [Subject — user](#subject--user-filings) + [Body — user](#body--user-filings) |
-| 6 | User `GitWorkHub99` | Account-level report | `https://github.com/GitWorkHub99` | (same as #5) | Same flow as #5, starting from **https://github.com/GitWorkHub99** | (same as #5) |
+| 1 | The repo you were pointed at | Content takedown | `[reported repository URL]` | **Malware or exploits** | Go directly to **https://github.com/contact/report-abuse** and paste the URL. (There's no convenient per-repo "Report" button; for repo reports you always use the contact form directly.) | [Main report](#main-report) |
+| 2 | Org `AjunaWorkHub` | Account-level report | `https://github.com/AjunaWorkHub` | Account-level (use **Other** or the closest matching option; explain in the body) | Go to **https://github.com/AjunaWorkHub** → click the **"…"** kebab menu near the top right → **"Report abuse"** — this opens the contact form with the org URL pre-filled. | [Org filings](#org-filings) |
+| 3 | Org `AetSoftWorkHub` | Account-level report | `https://github.com/AetSoftWorkHub` | (same as #2) | Same flow as #2, starting from **https://github.com/AetSoftWorkHub** | [Org filings](#org-filings) |
+| 4 | Org `DLabsHungary-Hub9` | Account-level report | `https://github.com/DLabsHungary-Hub9` | (same as #2) | Same flow, starting from **https://github.com/DLabsHungary-Hub9** | [Org filings](#org-filings) |
+| 5 | User `GitWorkHub9` | Account-level report | `https://github.com/GitWorkHub9` | Account-level (use **Other** or the closest matching option) | Go to **https://github.com/GitWorkHub9** → click **"Block or report user"** below the profile picture → **"Report abuse"** — opens the contact form with the user URL pre-filled. | [User filings](#user-filings) |
+| 6 | User `GitWorkHub99` | Account-level report | `https://github.com/GitWorkHub99` | (same as #5) | Same flow as #5, starting from **https://github.com/GitWorkHub99** | [User filings](#user-filings) |
 
-If a UI label doesn't match exactly (GitHub does adjust placement), the universal fallback for *any* of these is to open **https://github.com/contact/report-abuse** manually, paste the URL from the third column, select the category from the fourth column, and paste the matching subject + body. Each filing creates a separate T&S ticket but all reference the same campaign.
+If a UI label doesn't match exactly (GitHub does adjust placement), the universal fallback for *any* of these is to open **https://github.com/contact/report-abuse** manually, paste the URL from the third column, select the category from the fourth column, and paste the matching body. Each filing creates a separate T&S ticket but all reference the same campaign.
 
 ---
 
@@ -80,13 +80,7 @@ If, while filing, you find clear evidence that one of those accounts *is* operat
 
 ---
 
-## Subject — main report
-
-```text
-Coordinated multi-org developer-targeting malware campaign on GitHub — at least 15 repositories across the AjunaWorkHub, AetSoftWorkHub, and DLabsHungary-Hub9 organizations (plus individual accounts) deliver RCE and credential-theft payloads to developers via fake recruiting outreach
-```
-
-## Body — main report
+## Main report
 
 ```text
 SUMMARY
@@ -225,26 +219,16 @@ REPORTED BY
 
 ---
 
-## Subject — org filings
+## Org filings
 
-Use the same subject for each of filings #2, #3, #4. Replace `[org login]` with the org login (`AjunaWorkHub`, `AetSoftWorkHub`, or `DLabsHungary-Hub9`).
-
-```text
-Organization [org login] — operator-control signals observed in connection with an active multi-org developer-targeting malware campaign (Contagious Interview TTP cluster)
-```
-
-## Body — org filings
-
-The same body works for each org filing. Before submitting, replace `[org login]` with the specific org login — the entity-specific signals for each candidate are listed at the bottom of the body so the analyst sees them directly.
+The same body works for each of filings #2, #3, #4. Before submitting, replace `[org login]` with the specific org login (`AjunaWorkHub`, `AetSoftWorkHub`, or `DLabsHungary-Hub9`) — the entity-specific signals for each candidate are listed at the bottom of the body so the analyst sees them directly.
 
 ```text
 SUMMARY
 
 The GitHub organization [org login] shows multiple independent signals consistent with being operator-controlled in an active multi-org developer-targeting malware campaign matching the publicly-documented "Contagious Interview" TTP cluster (fake-recruiter cold outreach -> instruction to clone and run a "Web3 MVP" repository ahead of an interview -> compromise on first run).
 
-A campaign-level report covering the full technical mechanism and the ~15 affected repositories has been filed separately via https://github.com/contact/report-abuse with the subject:
-  "Coordinated multi-org developer-targeting malware campaign on GitHub -- at least 15 repositories across the AjunaWorkHub, AetSoftWorkHub, and DLabsHungary-Hub9 organizations (plus individual accounts) deliver RCE and credential-theft payloads to developers via fake recruiting outreach"
-The technical observations are not repeated here; please cross-reference.
+A campaign-level report covering the full technical mechanism and the ~15 affected repositories has been filed separately via https://github.com/contact/report-abuse (category "Malware or exploits", with the malicious repository as the reported URL). The technical observations are not repeated here; please cross-reference using the public case file link below.
 
 This filing is one of three per-org filings (against AjunaWorkHub, AetSoftWorkHub, DLabsHungary-Hub9) plus two per-user filings (against GitWorkHub9, GitWorkHub99). Together with the main campaign report, six filings cover the cluster.
 
@@ -273,26 +257,16 @@ REPORTED BY
 
 ---
 
-## Subject — user filings
+## User filings
 
-Use the same subject for each of filings #5 and #6. Replace `[user login]` with the username (`GitWorkHub9` or `GitWorkHub99`).
-
-```text
-User [user login] — operator-control signals observed in connection with an active multi-org developer-targeting malware campaign (Contagious Interview TTP cluster)
-```
-
-## Body — user filings
-
-The same body works for both user filings. Before submitting, replace `[user login]` with the specific username; the entity-specific signals for both candidates are listed at the bottom so the analyst sees the rationale directly.
+The same body works for both of filings #5 and #6. Before submitting, replace `[user login]` with the specific username (`GitWorkHub9` or `GitWorkHub99`) — the entity-specific signals for both candidates are listed at the bottom so the analyst sees the rationale directly.
 
 ```text
 SUMMARY
 
 The GitHub user account [user login] shows multiple independent signals consistent with being operator-controlled in an active multi-org developer-targeting malware campaign matching the publicly-documented "Contagious Interview" TTP cluster (fake-recruiter cold outreach -> instruction to clone and run a "Web3 MVP" repository ahead of an interview -> compromise on first run).
 
-A campaign-level report covering the full technical mechanism and the ~15 affected repositories has been filed separately via https://github.com/contact/report-abuse with the subject:
-  "Coordinated multi-org developer-targeting malware campaign on GitHub -- at least 15 repositories across the AjunaWorkHub, AetSoftWorkHub, and DLabsHungary-Hub9 organizations (plus individual accounts) deliver RCE and credential-theft payloads to developers via fake recruiting outreach"
-The technical observations are not repeated here; please cross-reference.
+A campaign-level report covering the full technical mechanism and the ~15 affected repositories has been filed separately via https://github.com/contact/report-abuse (category "Malware or exploits", with the malicious repository as the reported URL). The technical observations are not repeated here; please cross-reference using the public case file link below.
 
 This filing is one of two per-user filings (against GitWorkHub9 and GitWorkHub99) plus three per-org filings (against AjunaWorkHub, AetSoftWorkHub, DLabsHungary-Hub9). Together with the main campaign report, six filings cover the cluster.
 
