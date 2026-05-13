@@ -51,35 +51,58 @@ Same master file as the previous bullet, but jump straight to **§4 "Annotated t
 
 All members of the same multi-org operation. Each carries the same `verify(setApiKey(process.env.AUTH_API))` + `new Function("require", response.data)` Node-loader idiom (or its earlier-generation equivalent). **The artifacts in this repo — briefing, abuse reports, detection rules, IOCs — apply across the whole campaign, not just to any one repo.**
 
+### Confidence signals
+
+A repo's "confidence" is the convergence of independent verifiable signals. **Multi-signal classifications are more trustworthy than single-signal ones**, and the breakdown matters because account suspension is only appropriate when the account itself looks operator-owned — a compromised legitimate developer's account that happens to host a campaign repo is the *victim* of a different attack, not the perpetrator.
+
+| Code | What it means |
+|---|---|
+| **L** | **Loader code present in the repo.** The verifiable malware-loader idiom is in the repo's source (verified via GitHub code search). Strongest single observable — if **L** is verified, the repo itself should be taken down regardless of account status. |
+| **T** | **VS Code `.vscode/tasks.json` autorun** on `folderOpen` with piped shell payload to `vscode-settings-*.vercel.app` is present in the repo. |
+| **E** | **Committed `.env`** carries a base64-encoded `AUTH_API` value pointing at the campaign's Node-loader C2. |
+| **I** | **Bit-identical artifact** with another known cluster member (e.g. the same git blob SHA for `.vscode/tasks.json`) — proves cross-account operator coordination, not coincidence. |
+| **A** | **Account/org naming matches operator convention** (`*WorkHub*`, `Hub9`, `Hub99`, numeric-`9`-suffix persona pattern) or commit-author email uses the `+N` Gmail-alias persona convention. |
+| **S** | **Owning account shows no legitimate-developer activity** — hosts only campaign-shape repos, or is single-purpose and recently created. |
+| **C** | **Cluster-created** with another operator account (created same day + adjacent GitHub numeric ID — proves batch creation by one operator). |
+
+Signals **L T E I** describe the **repo** itself. Signals **A S C** describe the **owning account**. **L** alone justifies taking down the repo; **A + S** (or **A + S + C**) on the account justifies asking GitHub to suspend the account.
+
+The "Account verdict" column below distinguishes:
+- **Operator-owned** — account is part of the campaign; suspend it.
+- **Likely compromised legitimate** — repo is malicious but account belongs to a real developer who's a victim of the attack; take down the repo, investigate (don't suspend) the account.
+- **Uncertain** — not investigated in depth; classification deferred.
+
 ### Current-generation loader (`server/routes/api/auth.js`)
 
-| Repository | Org / User type | Lure theme | Confidence |
+| Repository | Lure theme | Signals | Account verdict |
 |---|---|---|---|
-| [AjunaWorkHub/AjunaVerse_MVP](https://github.com/AjunaWorkHub/AjunaVerse_MVP) | org | Web3 metaverse / staking / sports betting | High |
-| [AetSoftWorkHub/AetSoft_MVP](https://github.com/AetSoftWorkHub/AetSoft_MVP) | org | Web3 / metaverse | High |
-| [DLabsHungary-Hub9/DLabs-Platform-MVP2](https://github.com/DLabsHungary-Hub9/DLabs-Platform-MVP2) | org | Generic platform MVP | High |
-| [roamanbuild/OnyxVerse](https://github.com/roamanbuild/OnyxVerse) | user | Web3 metaverse | High |
-| [khaleb-dev/jackpot](https://github.com/khaleb-dev/jackpot) | user | Gambling / jackpot | High |
-| [rony1235/Jp-Soccer](https://github.com/rony1235/Jp-Soccer) | user | Sports betting / soccer | High |
-| [mspkteam/williampotter](https://github.com/mspkteam/williampotter) | user | (unclear; possibly fan-fic / unrelated decoy) | High |
+| [AjunaWorkHub/AjunaVerse_MVP](https://github.com/AjunaWorkHub/AjunaVerse_MVP) | Web3 metaverse | **L · T · E · I · A · S · C** | Operator-owned (multi-signal; primary case file) |
+| [AetSoftWorkHub/AetSoft_MVP](https://github.com/AetSoftWorkHub/AetSoft_MVP) | Web3 metaverse | **L · T · I · A · S · C** | Operator-owned (bit-identical `tasks.json` blob with AjunaVerse + same-day cluster creation with adjacent org ID) |
+| [DLabsHungary-Hub9/DLabs-Platform-MVP2](https://github.com/DLabsHungary-Hub9/DLabs-Platform-MVP2) | Generic platform MVP | **L · A · S** | Operator-owned (`Hub9`-naming match + single-repo single-purpose org) |
+| [roamanbuild/OnyxVerse](https://github.com/roamanbuild/OnyxVerse) | Web3 metaverse | **L · A · S** | Operator-owned (all 6 account repos are campaign-shape: `OnyxVerse`, `ACN-Verse`, `Japanese-Royal`, plus `*-demo9` variants matching the operator's numeric-`9`-suffix persona convention; no legitimate activity) |
+| [khaleb-dev/jackpot](https://github.com/khaleb-dev/jackpot) | Gambling | **L** | **Likely compromised legitimate** — owning account has 55 repos over 5+ years across PHP/Java/Vue/Dart, consistent with a real developer's portfolio. Repo should be taken down; account should be investigated for compromise rather than suspended. |
+| [rony1235/Jp-Soccer](https://github.com/rony1235/Jp-Soccer) | Sports betting | **L** | **Likely compromised legitimate** — owning account exists since 2017 with ~11 mostly-low-activity repos; three campaign-shape repos (`schooltutorial`, `japan-test`, `Jp-Soccer`) added in April–May 2026 suggest recent compromise. Repo takedown only. |
+| [mspkteam/williampotter](https://github.com/mspkteam/williampotter) | (unclear) | **L** | **Likely compromised legitimate** — owning account hosts older legitimate-looking repos (`fitnesssworldadminpanel`, `ETC-Coporative-code`, `specialized_medical`) sandwiching the campaign one. Repo takedown only. |
 
 ### Earlier-generation loader (`app/controllers/frontController.js`)
 
-Same loader code, different scaffold. Some of these may be on **compromised legitimate developer accounts** rather than attacker-owned ones, so confidence is lower per-repo. The lure delivery to a victim still works either way.
+Same loader code, different scaffold. The accounts hosting these repos look like **compromised legitimate developers** more often than the current-generation set — varied project portfolios, older creation dates, mostly low-activity. The lure delivery to a victim still works either way.
 
-| Repository | Org / User type | Lure theme | Confidence |
+| Repository | Lure theme | Signals | Account verdict |
 |---|---|---|---|
-| [Andrii-888/0gRollplay](https://github.com/Andrii-888/0gRollplay) | user | dApp / gaming | Medium |
-| [prahaladbelavadi/CoinLocatorDemo](https://github.com/prahaladbelavadi/CoinLocatorDemo) | user | Crypto / locator demo | Medium |
-| [sky-cook/tokentradingdapp](https://github.com/sky-cook/tokentradingdapp) | user | Token-trading dApp | Medium |
-| [WilliamSuhosky/Property-Voting-DApp](https://github.com/WilliamSuhosky/Property-Voting-DApp) | user | Voting dApp | Medium |
-| [artemus-jarrett/blockchain-voting-system](https://github.com/artemus-jarrett/blockchain-voting-system) | user | Voting dApp | Medium |
-| [TechByteX/NitroGem](https://github.com/TechByteX/NitroGem) | user/org | (unclear) | Medium |
-| [jamesm-dev/NitroGem](https://github.com/jamesm-dev/NitroGem) | user | (unclear) | Medium |
-| [dappfusion/defi-real-estate](https://github.com/dappfusion/defi-real-estate) | user/org | Real-estate tokenization | Medium |
-| [InvescoHub/defi-real-estate](https://github.com/InvescoHub/defi-real-estate) | user/org | Real-estate tokenization | Medium |
+| [Andrii-888/0gRollplay](https://github.com/Andrii-888/0gRollplay) | dApp / gaming | **L** | Likely compromised legitimate |
+| [prahaladbelavadi/CoinLocatorDemo](https://github.com/prahaladbelavadi/CoinLocatorDemo) | Crypto / locator demo | **L** | Likely compromised legitimate |
+| [sky-cook/tokentradingdapp](https://github.com/sky-cook/tokentradingdapp) | Token-trading dApp | **L** | Likely compromised legitimate |
+| [WilliamSuhosky/Property-Voting-DApp](https://github.com/WilliamSuhosky/Property-Voting-DApp) | Voting dApp | **L** | Likely compromised legitimate |
+| [artemus-jarrett/blockchain-voting-system](https://github.com/artemus-jarrett/blockchain-voting-system) | Voting dApp | **L** | Likely compromised legitimate |
+| [TechByteX/NitroGem](https://github.com/TechByteX/NitroGem) | (unclear) | **L** | Uncertain (not investigated) |
+| [jamesm-dev/NitroGem](https://github.com/jamesm-dev/NitroGem) | (unclear) | **L** | Uncertain (not investigated) |
+| [dappfusion/defi-real-estate](https://github.com/dappfusion/defi-real-estate) | Real-estate tokenization | **L** | Uncertain (not investigated) |
+| [InvescoHub/defi-real-estate](https://github.com/InvescoHub/defi-real-estate) | Real-estate tokenization | **L** | Uncertain (not investigated) |
 
-The operator-controlled organizations and user accounts behind these repositories — including the per-entity signals justifying that classification (creation dates, GitHub IDs, naming patterns, commit-author email conventions, etc.) — are catalogued in each incident's case file. See the case file linked under [Incidents analyzed in this repo](#incidents-analyzed-in-this-repo) below.
+The "Uncertain (not investigated)" entries are accounts whose profiles haven't been individually checked — the loader is verified in their repos via code search, but we haven't analyzed their owning-account histories. These could be either operator-owned or compromised legitimate.
+
+The operator-controlled organizations and user accounts and the per-entity signals justifying their classification (creation dates, GitHub IDs, naming patterns, commit-author email conventions, etc.) are catalogued in detail in each incident's case file. See the case file linked under [Incidents analyzed in this repo](#incidents-analyzed-in-this-repo) below.
 
 ### Encountered a repo not on this list?
 

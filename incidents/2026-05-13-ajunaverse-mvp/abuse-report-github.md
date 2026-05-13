@@ -87,27 +87,32 @@ This report is paired with five additional per-entity filings (against three org
 
 KNOWN CAMPAIGN REPOSITORIES
 
-Current generation (loader at server/routes/api/auth.js) -- high confidence operator-owned or operator-controlled:
+The repositories are listed below in two groups based on whether the OWNING ACCOUNT is operator-controlled (suspend the account) or likely a compromised legitimate developer's account (take down the repo but DO NOT suspend the account -- the account holder is a victim of a different attack). All repos carry verified malware-loader code and warrant takedown regardless of account status.
 
-- https://github.com/AjunaWorkHub/AjunaVerse_MVP
-- https://github.com/AetSoftWorkHub/AetSoft_MVP
-- https://github.com/DLabsHungary-Hub9/DLabs-Platform-MVP2
-- https://github.com/roamanbuild/OnyxVerse
-- https://github.com/khaleb-dev/jackpot
-- https://github.com/rony1235/Jp-Soccer
-- https://github.com/mspkteam/williampotter
+Current generation (loader at server/routes/api/auth.js) -- repos on operator-controlled accounts (suspend account):
 
-Earlier generation (loader at app/controllers/frontController.js -- same loader code, different scaffold) -- medium confidence, please investigate before suspending the account; some may be compromised legitimate developer accounts rather than operator-owned:
+- https://github.com/AjunaWorkHub/AjunaVerse_MVP   (org AjunaWorkHub, id 276264331; multi-signal operator-owned -- see "Highest-confidence operator-controlled identities" section below)
+- https://github.com/AetSoftWorkHub/AetSoft_MVP    (org AetSoftWorkHub, id 276275397; multi-signal operator-owned; bit-identical .vscode/tasks.json blob with AjunaVerse_MVP)
+- https://github.com/DLabsHungary-Hub9/DLabs-Platform-MVP2  (org DLabsHungary-Hub9; single-repo single-purpose org, "Hub9" naming match)
+- https://github.com/roamanbuild/OnyxVerse         (user roamanbuild; account hosts only campaign-shape repos -- OnyxVerse, ACN-Verse, Japanese-Royal, plus *-demo9 variants matching the operator's numeric-9-suffix persona convention; no legitimate-developer activity)
+
+Current generation -- repos on LIKELY COMPROMISED LEGITIMATE accounts (take down repo only; please investigate the account, do not suspend without further evidence):
+
+- https://github.com/khaleb-dev/jackpot     (account khaleb-dev has ~55 repos over 5+ years across PHP/Java/Vue/Dart -- consistent with a real developer's portfolio that has been compromised)
+- https://github.com/rony1235/Jp-Soccer     (account rony1235 exists since 2017 with ~11 mostly-low-activity repos; three campaign-shape repos added in April-May 2026 suggest recent compromise)
+- https://github.com/mspkteam/williampotter (account mspkteam hosts a mix of older legitimate-looking repos (fitnesssworldadminpanel, ETC-Coporative-code, specialized_medical) and the campaign one; pattern matches account compromise)
+
+Earlier generation (loader at app/controllers/frontController.js -- same loader code, different scaffold) -- repos on LIKELY COMPROMISED LEGITIMATE accounts (take down repo, investigate account):
 
 - https://github.com/Andrii-888/0gRollplay
 - https://github.com/prahaladbelavadi/CoinLocatorDemo
 - https://github.com/sky-cook/tokentradingdapp
 - https://github.com/WilliamSuhosky/Property-Voting-DApp
 - https://github.com/artemus-jarrett/blockchain-voting-system
-- https://github.com/TechByteX/NitroGem
-- https://github.com/jamesm-dev/NitroGem
-- https://github.com/dappfusion/defi-real-estate
-- https://github.com/InvescoHub/defi-real-estate
+- https://github.com/TechByteX/NitroGem    (uncertain -- not investigated in depth)
+- https://github.com/jamesm-dev/NitroGem   (uncertain -- not investigated in depth)
+- https://github.com/dappfusion/defi-real-estate    (uncertain -- not investigated in depth)
+- https://github.com/InvescoHub/defi-real-estate    (uncertain -- not investigated in depth)
 
 Highest-confidence operator-controlled identities (appropriate targets for org/user-level suspension; filed separately via per-entity reports):
 
@@ -116,6 +121,10 @@ Highest-confidence operator-controlled identities (appropriate targets for org/u
 - Org: DLabsHungary-Hub9
 - User: GitWorkHub9 (id 272514006) -- sole committer to AjunaWorkHub/AjunaVerse_MVP, commit author email fatihafariya8+2@gmail.com (Gmail "+N" alias convention implies parallel personas)
 - User: GitWorkHub99 (id 213663943) -- approximately 20 "credibility farming" clones of widely-used open-source projects (llama.cpp, prettier, angular-cli, nuxt.com, Xray-core, etc.) plus a sibling campaign repo "AetSoftVerse"
+
+Additional likely-operator-owned user account (not currently filed separately, but warrants consideration for account suspension):
+
+- User: roamanbuild -- account hosts only campaign-shape repositories (OnyxVerse, ACN-Verse, Japanese-Royal, and *-demo9 variants matching the operator's numeric-9-suffix persona convention seen in GitWorkHub9, GitWorkHub99, and DLabsHungary-Hub9). No legitimate-developer activity. All repos created within a one-week window in May 2026.
 
 
 TECHNICAL MECHANISM (analyzed from <YOUR_REPO_URL> at commit <COMMIT_SHA>; the same loader pattern is present in every current-generation repo listed above)
@@ -166,7 +175,7 @@ Intent is established by the base64 obfuscation of the C2 URL in committed .env,
 
 REQUESTED ACTIONS
 
-1. Take down all CURRENT-GENERATION repositories listed above:
+1. Take down all current-generation repositories listed above, irrespective of account status:
    - AjunaWorkHub/AjunaVerse_MVP
    - AetSoftWorkHub/AetSoft_MVP
    - DLabsHungary-Hub9/DLabs-Platform-MVP2
@@ -177,9 +186,9 @@ REQUESTED ACTIONS
 
 2. Suspend the operator-controlled organizations: AjunaWorkHub (id 276264331), AetSoftWorkHub (id 276275397), DLabsHungary-Hub9. (Filed separately via per-org abuse reports.)
 
-3. Suspend the operator-controlled user accounts: GitWorkHub9 (id 272514006), GitWorkHub99 (id 213663943). (Filed separately via per-user abuse reports.)
+3. Suspend the operator-controlled user accounts: GitWorkHub9 (id 272514006), GitWorkHub99 (id 213663943). (Filed separately via per-user abuse reports.) Roamanbuild also shows operator-controlled signals (all-campaign-repo account, operator-naming-convention match) and warrants consideration for suspension; it is not separately filed below but may be added if pursuing comprehensive cluster takedown.
 
-4. For EARLIER-GENERATION repositories, please investigate before suspending the account -- some accounts may be compromised legitimate developers who would need account recovery rather than suspension. The repositories themselves should be taken down regardless.
+4. For ALL repositories on likely-compromised-legitimate accounts (khaleb-dev, rony1235, mspkteam in the current generation; Andrii-888, prahaladbelavadi, sky-cook, WilliamSuhosky, artemus-jarrett in the earlier generation; plus the uncertain accounts TechByteX, jamesm-dev, dappfusion, InvescoHub), please investigate the account profile before any suspension action -- these account holders may be victims of compromise and would need account recovery rather than suspension. The repositories themselves should be taken down regardless.
 
 5. Consider adding the distinctive code strings -- 'verify(setApiKey(process.env.AUTH_API))', 'new Function("require", response.data)', and the header 'x-app-request: ip-check' -- to GitHub's malware-content scanning to catch future iterations of this campaign.
 
