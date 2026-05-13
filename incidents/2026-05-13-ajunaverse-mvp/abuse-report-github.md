@@ -1,6 +1,16 @@
 # Abuse report — GitHub Trust & Safety
 
-This case warrants **six separate filings** through three of GitHub's abuse flows: one against the repository, three against the operator-controlled organizations, and two against the operator-controlled user accounts. GitHub routes abuse differently per entity type, and entity-level suspensions (orgs and users) usually need their own filings to be acted on.
+This case warrants **six separate filings** to maximize coverage across the two independent kinds of action GitHub Trust & Safety can take:
+
+- **Content takedown** — disabling the malicious repository (`Malware or exploits` category). Filed *once*, against the repo you encountered.
+- **Account suspension** — suspending the operator-controlled organizations and user accounts. Filed *once per entity* (three orgs + two users).
+
+All six filings go through the same GitHub abuse contact form at **https://github.com/contact/report-content-or-abuse**. What differentiates the filings is two fields in the form:
+
+1. **Which URL/handle you put in the "content/account being reported" field** — a repo URL for the content takedown, an org or user URL for each account suspension.
+2. **Which abuse category you select** — `Malware or exploits` for the content takedown, an account-level category (typically `Other` or the closest matching option) for the account suspensions.
+
+Filing the same case under both report types is intentional, not redundant: a content/malware report and an account-suspension report are reviewed by different processes inside T&S, and one is not a substitute for the other. (GitHub also exposes per-entity "Report" links on org and user pages — those route to the same contact form with the entity URL pre-filled, which is the easier path for filings #2–#6.)
 
 This file is a **copy-paste template**. Before submitting, replace the case-specific placeholders below with values from this incident's [case file](./README.md) (or from your direct knowledge of the repo you were pointed at). The campaign-wide indicators (operator-controlled organization names, user accounts, C2 hostnames, etc.) are already filled in because they're the same across the cluster.
 
@@ -21,18 +31,18 @@ The org and user filings (filings #2–#6) use their own per-entity placeholders
 
 ## Filing checklist
 
-Work top-down. The repo filing carries the full technical evidence; the org/user filings reference it and request entity-level suspensions. If you only have time for some of these, prioritize #1 (the main case) and #2–#4 (org suspensions take down all an org's repos in one move).
+Work top-down. The first filing requests content takedown (repo disablement) and carries the full technical evidence; filings #2–#6 request account suspensions. If you only have time for some of these, prioritize #1 and #2–#4 — org suspensions take down all an org's repos in one move.
 
-| # | Target | Type | Where to file | Use these code blocks |
-|---|---|---|---|---|
-| 1 | `<YOUR_REPO_URL>` (the repository you were pointed at) | Repo | https://github.com/contact/report-abuse → *"I want to report abuse or spam"* → *"Malware or exploits"* | [Subject — main](#subject--main-report) + [Body — main](#body--main-report) |
-| 2 | `AjunaWorkHub` | Org | https://github.com/AjunaWorkHub → click the **"…"** kebab menu near the top right → **"Report abuse"** (or use https://github.com/contact/report-content-or-abuse and paste the org URL) | [Subject — org](#subject--org-filings) + [Body — org](#body--org-filings) |
-| 3 | `AetSoftWorkHub` | Org | https://github.com/AetSoftWorkHub → **"…"** → **"Report abuse"** | [Subject — org](#subject--org-filings) + [Body — org](#body--org-filings) |
-| 4 | `DLabsHungary-Hub9` | Org | https://github.com/DLabsHungary-Hub9 → **"…"** → **"Report abuse"** | [Subject — org](#subject--org-filings) + [Body — org](#body--org-filings) |
-| 5 | `GitWorkHub9` | User | https://github.com/GitWorkHub9 → **"Block or report user"** below the profile picture → **"Report abuse"** | [Subject — user](#subject--user-filings) + [Body — user](#body--user-filings) |
-| 6 | `GitWorkHub99` | User | https://github.com/GitWorkHub99 → **"Block or report user"** → **"Report abuse"** | [Subject — user](#subject--user-filings) + [Body — user](#body--user-filings) |
+| # | Target | Action requested | URL to paste in the form's "what are you reporting" field | Abuse category to select | Easiest entry point (pre-fills the URL) | Use these code blocks |
+|---|---|---|---|---|---|---|
+| 1 | The repo you were pointed at | Content takedown (disable the repo) | `<YOUR_REPO_URL>` | **Malware or exploits** | Go directly to **https://github.com/contact/report-content-or-abuse** and paste the URL. (There's no convenient per-repo "Report" button; for repo reports you always use the contact form directly.) | [Subject — main](#subject--main-report) + [Body — main](#body--main-report) |
+| 2 | Org `AjunaWorkHub` | Account suspension | `https://github.com/AjunaWorkHub` | Account-level (use **Other** or the closest matching option; explain in the body) | Go to **https://github.com/AjunaWorkHub** → click the **"…"** kebab menu near the top right → **"Report abuse"** — this opens the contact form with the org URL pre-filled. | [Subject — org](#subject--org-filings) + [Body — org](#body--org-filings) |
+| 3 | Org `AetSoftWorkHub` | Account suspension | `https://github.com/AetSoftWorkHub` | (same as #2) | Same flow as #2, starting from **https://github.com/AetSoftWorkHub** | (same as #2) |
+| 4 | Org `DLabsHungary-Hub9` | Account suspension | `https://github.com/DLabsHungary-Hub9` | (same as #2) | Same flow, starting from **https://github.com/DLabsHungary-Hub9** | (same as #2) |
+| 5 | User `GitWorkHub9` | Account suspension | `https://github.com/GitWorkHub9` | Account-level (use **Other** or the closest matching option) | Go to **https://github.com/GitWorkHub9** → click **"Block or report user"** below the profile picture → **"Report abuse"** — opens the contact form with the user URL pre-filled. | [Subject — user](#subject--user-filings) + [Body — user](#body--user-filings) |
+| 6 | User `GitWorkHub99` | Account suspension | `https://github.com/GitWorkHub99` | (same as #5) | Same flow as #5, starting from **https://github.com/GitWorkHub99** | (same as #5) |
 
-If a UI label doesn't match exactly (GitHub does adjust placement), the fallback for any entity is to fill out https://github.com/contact/report-content-or-abuse manually with the entity URL pasted in. Each filing creates a separate T&S ticket but all reference the same campaign — that's intentional, since entity-level suspension decisions are made per entity.
+If a UI label doesn't match exactly (GitHub does adjust placement), the universal fallback for *any* of these is to open **https://github.com/contact/report-content-or-abuse** manually, paste the URL from the third column, select the category from the fourth column, and paste the matching subject + body. Each filing creates a separate T&S ticket but all reference the same campaign — that's intentional, since content-takedown and account-suspension decisions are made in different review queues.
 
 ---
 
