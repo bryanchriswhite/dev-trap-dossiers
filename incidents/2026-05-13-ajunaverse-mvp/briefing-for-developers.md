@@ -20,6 +20,36 @@ This briefing is based on one current instance — `https://github.com/AjunaWork
 
 ---
 
+## Was your repo one of these?
+
+If the recruiter pointed you at any of the URLs below, **this briefing is for you exactly**. Do not clone, install, or open them.
+
+Current-generation instances (server/routes/api/auth.js loader path):
+
+- https://github.com/AjunaWorkHub/AjunaVerse_MVP
+- https://github.com/AetSoftWorkHub/AetSoft_MVP
+- https://github.com/DLabsHungary-Hub9/DLabs-Platform-MVP2
+- https://github.com/roamanbuild/OnyxVerse
+- https://github.com/khaleb-dev/jackpot
+- https://github.com/rony1235/Jp-Soccer
+- https://github.com/mspkteam/williampotter
+
+Earlier-generation instances (app/controllers/frontController.js loader path — same loader, different scaffold, some accounts may be compromised legitimate developers):
+
+- https://github.com/Andrii-888/0gRollplay
+- https://github.com/prahaladbelavadi/CoinLocatorDemo
+- https://github.com/sky-cook/tokentradingdapp
+- https://github.com/WilliamSuhosky/Property-Voting-DApp
+- https://github.com/artemus-jarrett/blockchain-voting-system
+- https://github.com/TechByteX/NitroGem
+- https://github.com/jamesm-dev/NitroGem
+- https://github.com/dappfusion/defi-real-estate
+- https://github.com/InvescoHub/defi-real-estate
+
+**If your repo is not on this list but fits the same shape** — Web3/DeFi/metaverse/dApp/crypto-gaming MVP framing, single-author commit history, committed `.env`, fresh GitHub org with one repo, README claims a multi-person team — assume it's the next iteration of the same campaign and treat it the same way. The diagnostic grep below will confirm in one shot.
+
+---
+
 ## What actually runs
 
 The repo carries three independent loaders. **Any one of them is enough.** They're independent so that even if you happen to neutralize one, the others still fire.
