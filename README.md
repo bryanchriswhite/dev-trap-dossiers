@@ -49,60 +49,87 @@ Same master file as the previous bullet, but jump straight to **§4 "Annotated t
 
 ## Known campaign repositories
 
-All members of the same multi-org operation. Each carries the same `verify(setApiKey(process.env.AUTH_API))` + `new Function("require", response.data)` Node-loader idiom (or its earlier-generation equivalent). **The artifacts in this repo — briefing, abuse reports, detection rules, IOCs — apply across the whole campaign, not just to any one repo.**
+All members of the same multi-org operation. Each repo carries the same `verify(setApiKey(process.env.AUTH_API))` + `new Function("require", response.data)` Node-loader idiom (or its earlier-generation equivalent). **The artifacts in this repo — briefing, abuse reports, detection rules, IOCs — apply across the whole campaign, not just to any one repo.**
+
+The catalog separates two distinct concerns:
+
+- **Repositories** — what victims are sent. Useful for *self-identification* ("was I pointed at one of these?") and for *takedown* (the repos are all malicious; they all warrant removal).
+- **Owning accounts and orgs** — the GitHub identities that host or commit to the repos. Useful for *filing decisions* (which entities should be reported for suspension, vs. which are themselves victims of a different attack).
+
+A repo's owning account being operator-owned vs. a compromised legitimate developer doesn't change whether the repo is malicious — the loader is the loader. But it does change whether GitHub should suspend the account or just take down the repo.
 
 ### Confidence signals
 
-A repo's "confidence" is the convergence of independent verifiable signals. **Multi-signal classifications are more trustworthy than single-signal ones**, and the breakdown matters because account suspension is only appropriate when the account itself looks operator-owned — a compromised legitimate developer's account that happens to host a campaign repo is the *victim* of a different attack, not the perpetrator.
+Each entity below shows which verifiable signals it satisfies. **Multi-signal classifications are more trustworthy than single-signal ones.** Signals come in two groups, because they describe different units:
+
+**Repo-level signals** — observable in the repo itself:
 
 | Code | What it means |
 |---|---|
-| **L** | **Loader code present in the repo.** The verifiable malware-loader idiom is in the repo's source (verified via GitHub code search). Strongest single observable — if **L** is verified, the repo itself should be taken down regardless of account status. |
-| **T** | **VS Code `.vscode/tasks.json` autorun** on `folderOpen` with piped shell payload to `vscode-settings-*.vercel.app` is present in the repo. |
+| **L** | **Loader code present in the repo** (verified via GitHub code search on the distinctive strings). Strongest single observable — the repo is part of the campaign. |
+| **T** | **VS Code `.vscode/tasks.json` autorun** on `folderOpen` with piped shell payload is present in the repo. |
 | **E** | **Committed `.env`** carries a base64-encoded `AUTH_API` value pointing at the campaign's Node-loader C2. |
 | **I** | **Bit-identical artifact** with another known cluster member (e.g. the same git blob SHA for `.vscode/tasks.json`) — proves cross-account operator coordination, not coincidence. |
-| **A** | **Account/org naming matches operator convention** (`*WorkHub*`, `Hub9`, `Hub99`, numeric-`9`-suffix persona pattern) or commit-author email uses the `+N` Gmail-alias persona convention. |
-| **S** | **Owning account shows no legitimate-developer activity** — hosts only campaign-shape repos, or is single-purpose and recently created. |
-| **C** | **Cluster-created** with another operator account (created same day + adjacent GitHub numeric ID — proves batch creation by one operator). |
 
-Signals **L T E I** describe the **repo** itself. Signals **A S C** describe the **owning account**. **L** alone justifies taking down the repo; **A + S** (or **A + S + C**) on the account justifies asking GitHub to suspend the account.
+**Account-level signals** — observable in the owning account/org profile:
 
-The "Account verdict" column below distinguishes:
-- **Operator-owned** — account is part of the campaign; suspend it.
-- **Likely compromised legitimate** — repo is malicious but account belongs to a real developer who's a victim of the attack; take down the repo, investigate (don't suspend) the account.
-- **Uncertain** — not investigated in depth; classification deferred.
+| Code | What it means |
+|---|---|
+| **A** | **Naming matches operator convention** (`*WorkHub*`, `Hub9`, `Hub99`, numeric-`9`-suffix repo-naming pattern) or commit-author email uses the `+N` Gmail-alias persona convention. |
+| **S** | **No legitimate-developer activity** — account hosts only campaign-shape repos, or is single-purpose and recently created. |
+| **C** | **Cluster-created** with another operator account (same day + adjacent GitHub numeric ID — proves batch creation by one operator). |
 
-### Current-generation loader (`server/routes/api/auth.js`)
+Any verified **L** justifies taking down the repo regardless of account status. **A + S** (or **A + S + C**) on the account justifies asking GitHub to suspend the account.
 
-| Repository | Lure theme | Signals | Account verdict |
+### Repositories
+
+All repos below are confirmed campaign members (L is verified for every row). The "Generation" column refers to the loader-code file path: *current* generation has it at `server/routes/api/auth.js`; *earlier* generation has it at `app/controllers/frontController.js`. The loader idiom is the same in both; the difference is the surrounding scaffold.
+
+| Repository | Lure theme | Generation | Repo signals verified |
 |---|---|---|---|
-| [AjunaWorkHub/AjunaVerse_MVP](https://github.com/AjunaWorkHub/AjunaVerse_MVP) | Web3 metaverse | **L · T · E · I · A · S · C** | Operator-owned (multi-signal; primary case file) |
-| [AetSoftWorkHub/AetSoft_MVP](https://github.com/AetSoftWorkHub/AetSoft_MVP) | Web3 metaverse | **L · T · I · A · S · C** | Operator-owned (bit-identical `tasks.json` blob with AjunaVerse + same-day cluster creation with adjacent org ID) |
-| [DLabsHungary-Hub9/DLabs-Platform-MVP2](https://github.com/DLabsHungary-Hub9/DLabs-Platform-MVP2) | Generic platform MVP | **L · A · S** | Operator-owned (`Hub9`-naming match + single-repo single-purpose org) |
-| [roamanbuild/OnyxVerse](https://github.com/roamanbuild/OnyxVerse) | Web3 metaverse | **L · A · S** | Operator-owned (all 6 account repos are campaign-shape: `OnyxVerse`, `ACN-Verse`, `Japanese-Royal`, plus `*-demo9` variants matching the operator's numeric-`9`-suffix persona convention; no legitimate activity) |
-| [khaleb-dev/jackpot](https://github.com/khaleb-dev/jackpot) | Gambling | **L** | **Likely compromised legitimate** — owning account has 55 repos over 5+ years across PHP/Java/Vue/Dart, consistent with a real developer's portfolio. Repo should be taken down; account should be investigated for compromise rather than suspended. |
-| [rony1235/Jp-Soccer](https://github.com/rony1235/Jp-Soccer) | Sports betting | **L** | **Likely compromised legitimate** — owning account exists since 2017 with ~11 mostly-low-activity repos; three campaign-shape repos (`schooltutorial`, `japan-test`, `Jp-Soccer`) added in April–May 2026 suggest recent compromise. Repo takedown only. |
-| [mspkteam/williampotter](https://github.com/mspkteam/williampotter) | (unclear) | **L** | **Likely compromised legitimate** — owning account hosts older legitimate-looking repos (`fitnesssworldadminpanel`, `ETC-Coporative-code`, `specialized_medical`) sandwiching the campaign one. Repo takedown only. |
+| [AjunaWorkHub/AjunaVerse_MVP](https://github.com/AjunaWorkHub/AjunaVerse_MVP) | Web3 metaverse | current | L · T · E · I |
+| [AetSoftWorkHub/AetSoft_MVP](https://github.com/AetSoftWorkHub/AetSoft_MVP) | Web3 metaverse | current | L · T · I (via bit-identical `tasks.json` blob with AjunaVerse) |
+| [DLabsHungary-Hub9/DLabs-Platform-MVP2](https://github.com/DLabsHungary-Hub9/DLabs-Platform-MVP2) | Generic platform MVP | current | L |
+| [roamanbuild/OnyxVerse](https://github.com/roamanbuild/OnyxVerse) | Web3 metaverse | current | L |
+| [khaleb-dev/jackpot](https://github.com/khaleb-dev/jackpot) | Gambling | current | L |
+| [rony1235/Jp-Soccer](https://github.com/rony1235/Jp-Soccer) | Sports betting | current | L |
+| [mspkteam/williampotter](https://github.com/mspkteam/williampotter) | (unclear) | current | L |
+| [Andrii-888/0gRollplay](https://github.com/Andrii-888/0gRollplay) | dApp / gaming | earlier | L |
+| [prahaladbelavadi/CoinLocatorDemo](https://github.com/prahaladbelavadi/CoinLocatorDemo) | Crypto / locator demo | earlier | L |
+| [sky-cook/tokentradingdapp](https://github.com/sky-cook/tokentradingdapp) | Token-trading dApp | earlier | L |
+| [WilliamSuhosky/Property-Voting-DApp](https://github.com/WilliamSuhosky/Property-Voting-DApp) | Voting dApp | earlier | L |
+| [artemus-jarrett/blockchain-voting-system](https://github.com/artemus-jarrett/blockchain-voting-system) | Voting dApp | earlier | L |
+| [TechByteX/NitroGem](https://github.com/TechByteX/NitroGem) | (unclear) | earlier | L |
+| [jamesm-dev/NitroGem](https://github.com/jamesm-dev/NitroGem) | (unclear) | earlier | L |
+| [dappfusion/defi-real-estate](https://github.com/dappfusion/defi-real-estate) | Real-estate tokenization | earlier | L |
+| [InvescoHub/defi-real-estate](https://github.com/InvescoHub/defi-real-estate) | Real-estate tokenization | earlier | L |
 
-### Earlier-generation loader (`app/controllers/frontController.js`)
+Note that for most repos only the loader code (**L**) has been directly verified — that's the signal the GitHub code search hit on. The multi-signal rows (AjunaVerse, AetSoft) are the ones we've inspected end-to-end. The rest could have additional signals (**T**, **E**, **I**) but those would need direct inspection of each repo to confirm.
 
-Same loader code, different scaffold. The accounts hosting these repos look like **compromised legitimate developers** more often than the current-generation set — varied project portfolios, older creation dates, mostly low-activity. The lure delivery to a victim still works either way.
+### Owning accounts and orgs
 
-| Repository | Lure theme | Signals | Account verdict |
-|---|---|---|---|
-| [Andrii-888/0gRollplay](https://github.com/Andrii-888/0gRollplay) | dApp / gaming | **L** | Likely compromised legitimate |
-| [prahaladbelavadi/CoinLocatorDemo](https://github.com/prahaladbelavadi/CoinLocatorDemo) | Crypto / locator demo | **L** | Likely compromised legitimate |
-| [sky-cook/tokentradingdapp](https://github.com/sky-cook/tokentradingdapp) | Token-trading dApp | **L** | Likely compromised legitimate |
-| [WilliamSuhosky/Property-Voting-DApp](https://github.com/WilliamSuhosky/Property-Voting-DApp) | Voting dApp | **L** | Likely compromised legitimate |
-| [artemus-jarrett/blockchain-voting-system](https://github.com/artemus-jarrett/blockchain-voting-system) | Voting dApp | **L** | Likely compromised legitimate |
-| [TechByteX/NitroGem](https://github.com/TechByteX/NitroGem) | (unclear) | **L** | Uncertain (not investigated) |
-| [jamesm-dev/NitroGem](https://github.com/jamesm-dev/NitroGem) | (unclear) | **L** | Uncertain (not investigated) |
-| [dappfusion/defi-real-estate](https://github.com/dappfusion/defi-real-estate) | Real-estate tokenization | **L** | Uncertain (not investigated) |
-| [InvescoHub/defi-real-estate](https://github.com/InvescoHub/defi-real-estate) | Real-estate tokenization | **L** | Uncertain (not investigated) |
+| Account / Org | Type | Verdict | Account signals | Notes |
+|---|---|---|---|---|
+| [AjunaWorkHub](https://github.com/AjunaWorkHub) | org | **Operator-owned** (suspend) | A · S · C | Org id 276264331, created 2026-04-27 in same-day adjacent-ID cluster with `AetSoftWorkHub`. Owns: `AjunaVerse_MVP`. |
+| [AetSoftWorkHub](https://github.com/AetSoftWorkHub) | org | **Operator-owned** (suspend) | A · S · C | Org id 276275397, created same day as `AjunaWorkHub`. Owns: `AetSoft_MVP`. |
+| [DLabsHungary-Hub9](https://github.com/DLabsHungary-Hub9) | org | **Operator-owned** (suspend) | A · S | Single-repo single-purpose org. `Hub9` suffix matches operator convention. Owns: `DLabs-Platform-MVP2`. |
+| [GitWorkHub9](https://github.com/GitWorkHub9) | user | **Operator-owned** (suspend) | A | User id 272514006. Sole committer to `AjunaWorkHub/AjunaVerse_MVP`. Commit-author email `fatihafariya8+2@gmail.com` — `+N` Gmail-alias persona convention. |
+| [GitWorkHub99](https://github.com/GitWorkHub99) | user | **Operator-owned** (suspend) | A · S | User id 213663943. Profile padded with ~20 clones of well-known OSS projects (`llama.cpp`, `prettier`, `angular-cli`, `nuxt.com`, `Xray-core`, …) — the publicly-documented "credibility farming" TTP. Hosts sibling campaign repo `AetSoftVerse`. |
+| [roamanbuild](https://github.com/roamanbuild) | user | **Operator-owned** (suspend; not currently in the per-user filing checklist — candidate for addition) | A · S | All 6 account repos are campaign-shape (`OnyxVerse`, `ACN-Verse`, `Japanese-Royal`, plus `*-demo9` variants matching the operator's numeric-`9`-suffix persona convention). All created within a one-week window in May 2026. Owns: `OnyxVerse` + 5 siblings. |
+| [khaleb-dev](https://github.com/khaleb-dev) | user | **Likely compromised legitimate** (investigate, don't suspend) | — | 55 repos over 5+ years across PHP/Java/Vue/Dart — clear real-developer portfolio. The `jackpot` repo appears to have been pushed via account compromise. |
+| [rony1235](https://github.com/rony1235) | user | **Likely compromised legitimate** (investigate, don't suspend) | — | Account exists since 2017 with ~11 mostly-low-activity repos; three campaign-shape repos (`schooltutorial`, `japan-test`, `Jp-Soccer`) added April–May 2026 suggest recent compromise. |
+| [mspkteam](https://github.com/mspkteam) | user | **Likely compromised legitimate** (investigate, don't suspend) | — | 5 mixed repos with the campaign one sandwiched between older and newer legitimate-looking projects (`fitnesssworldadminpanel`, `ETC-Coporative-code`, `specialized_medical`). |
+| [Andrii-888](https://github.com/Andrii-888) | user | Uncertain (not investigated) | — | Owns: `0gRollplay`. Earlier-generation lure pattern leans toward "likely compromised legitimate" but not confirmed. |
+| [prahaladbelavadi](https://github.com/prahaladbelavadi) | user | Uncertain (not investigated) | — | Owns: `CoinLocatorDemo`. |
+| [sky-cook](https://github.com/sky-cook) | user | Uncertain (not investigated) | — | Owns: `tokentradingdapp`. |
+| [WilliamSuhosky](https://github.com/WilliamSuhosky) | user | Uncertain (not investigated) | — | Owns: `Property-Voting-DApp`. |
+| [artemus-jarrett](https://github.com/artemus-jarrett) | user | Uncertain (not investigated) | — | Owns: `blockchain-voting-system`. |
+| [TechByteX](https://github.com/TechByteX) | user/org | Uncertain (not investigated) | — | Owns: `NitroGem`. |
+| [jamesm-dev](https://github.com/jamesm-dev) | user | Uncertain (not investigated) | — | Owns: `NitroGem` (duplicate repo name). |
+| [dappfusion](https://github.com/dappfusion) | user/org | Uncertain (not investigated) | — | Owns: `defi-real-estate`. |
+| [InvescoHub](https://github.com/InvescoHub) | user/org | Uncertain (not investigated) | — | Owns: `defi-real-estate` (duplicate repo name). |
 
-The "Uncertain (not investigated)" entries are accounts whose profiles haven't been individually checked — the loader is verified in their repos via code search, but we haven't analyzed their owning-account histories. These could be either operator-owned or compromised legitimate.
-
-The operator-controlled organizations and user accounts and the per-entity signals justifying their classification (creation dates, GitHub IDs, naming patterns, commit-author email conventions, etc.) are catalogued in detail in each incident's case file. See the case file linked under [Incidents analyzed in this repo](#incidents-analyzed-in-this-repo) below.
+The detailed signals justifying each operator-owned classification (and the methodology used to verify them) are in each incident's case file. See [Incidents analyzed in this repo](#incidents-analyzed-in-this-repo) below.
 
 ### Encountered a repo not on this list?
 
