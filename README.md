@@ -2,7 +2,7 @@
 
 A growing record of developer-targeted malware campaigns analyzed in detail, paired with **copy-paste-ready artifacts for the different people who need to act on each one** — would-be victims, abuse desks, detection engineers, security researchers.
 
-**Currently tracking:** an active developer-targeting operation matching the publicly-documented **"Contagious Interview" TTP cluster** (fake-recruiter → clone repo → `npm install`/`npm start` → stealer-loader). **≥15 known repository instances** across at least three GitHub organizations and several individual accounts. Two Vercel-hosted C2 servers, operator activity observed through at least 2026-05-12. Full case file in [`incidents/2026-05-13-ajunaverse-mvp/`](./incidents/2026-05-13-ajunaverse-mvp/).
+**Currently tracking:** an active developer-targeting operation matching the publicly-documented **"Contagious Interview" TTP cluster** (fake-recruiter → clone repo → `npm install`/`npm start` → stealer-loader). **≥15 known repository instances** across at least three GitHub organizations and several individual accounts. Two Vercel-hosted C2 servers, operator activity observed at least through mid-May 2026.
 
 If you arrived here because of one of the situations below, jump straight to the file that's for you. You don't need to read anything else first.
 
@@ -16,24 +16,24 @@ If you arrived here because of one of the situations below, jump straight to the
 
 The campaign covers **at least ~15 known repositories** across multiple GitHub organizations and accounts — see the [Known campaign repositories](#known-campaign-repositories) table below. If you were pointed at any of them — *or at any repo that fits the same shape* (single-author commit history, "Web3 MVP" framing, committed `.env`, fresh GitHub org with one repo, README claims a multi-person team that the commit history doesn't support) — read the developer briefing before doing anything else:
 
-→ **[`incidents/2026-05-13-ajunaverse-mvp/briefing-for-developers.md`](./incidents/2026-05-13-ajunaverse-mvp/briefing-for-developers.md)** — 5-minute read. Tells you what the repo would actually do if you ran it, how to spot the trap on GitHub before cloning, how to inspect a freshly-cloned copy safely, what to do if you already ran it, and a single grep that catches the current campaign generation. **Applies to all known instances in the table below.** Forwardable to a colleague.
+→ **[`briefing-for-developers.md`](./incidents/2026-05-13-ajunaverse-mvp/briefing-for-developers.md)** — 5-minute read. Tells you what the repo would actually do if you ran it, how to spot the trap on GitHub before cloning, how to inspect a freshly-cloned copy safely, what to do if you already ran it, and a single grep that catches the current campaign generation. **Applies to all known instances in the table below.** Forwardable to a colleague.
 
 ### 📮 You're filing a takedown report against any repo in this campaign
 
-The abuse reports below are written as **campaign-wide** filings — the same documents cover any of the ~15 known repos, not just the one we personally encountered. Adapt the subject line to lead with whichever repo you were pointed at.
+The abuse reports below are **copy-paste templates** that any campaign-affected reporter can use. Fill in your case-specific bits — the repo you were pointed at, the commit you analyzed, your name/handle — from the relevant incident's case file before submitting. The campaign-wide indicators (operator-controlled organizations and user accounts, C2 hostnames, etc.) are already in the templates because they're the same across the cluster.
 
-- **GitHub Trust & Safety** (https://github.com/contact/report-abuse) → **[`incidents/2026-05-13-ajunaverse-mvp/abuse-report-github.md`](./incidents/2026-05-13-ajunaverse-mvp/abuse-report-github.md)**. This case warrants **six separate filings** through three of GitHub's abuse flows — one against the repository, three against the operator-controlled organizations (`AjunaWorkHub`, `AetSoftWorkHub`, `DLabsHungary-Hub9`), and two against the operator-controlled user accounts (`GitWorkHub9`, `GitWorkHub99`). The file contains a filing checklist, an explanation of which entities qualify based on signals of operator-created intent (vs. compromised legitimate accounts), the main report subject + body, and abbreviated subject + body templates for the per-entity filings. Includes permalinks, AUP citations, and a corroborating-third-party-write-ups list for the "weaponized in the wild" question.
-- **Vercel abuse** (https://vercel.com/help) → **[`incidents/2026-05-13-ajunaverse-mvp/abuse-report-vercel.md`](./incidents/2026-05-13-ajunaverse-mvp/abuse-report-vercel.md)**. The two C2 hostnames serve the entire campaign, so this filing is by nature cluster-wide. Includes a reproducible 30-second curl probe the analyst can run to verify the C2's IP-allowlist gating themselves.
+- **GitHub Trust & Safety** (https://github.com/contact/report-abuse) → **[`abuse-report-github.md`](./incidents/2026-05-13-ajunaverse-mvp/abuse-report-github.md)**. The campaign warrants multiple filings through GitHub's three abuse flows: one against the repository you encountered, plus per-entity filings against each operator-controlled organization and user account named in the case file. The template contains a filing checklist with the UI flow per entity type, a signals-based justification of which entities qualify for suspension (vs. compromised legitimate accounts), and templated subject + body code blocks for both the main report and the per-entity filings. Includes AUP citations and corroborating-third-party-write-up references.
+- **Vercel abuse** (https://vercel.com/help) → **[`abuse-report-vercel.md`](./incidents/2026-05-13-ajunaverse-mvp/abuse-report-vercel.md)**. The C2 hostnames serve the entire campaign, so this filing is by nature cluster-wide. Includes a reproducible 30-second curl probe the abuse-desk analyst can run to verify the C2's IP-allowlist gating themselves.
 
 ### 🛡 You're a blue-team / detection engineer building rules or feeding a SIEM/TIP
 
 The IOCs and rules below cover the whole cluster, not just one repo.
 
 - **IOCs** in spreadsheet-friendly CSV and tool-friendly JSON (suitable for MISP / STIX / OpenCTI ingestion):
-  → **[`incidents/2026-05-13-ajunaverse-mvp/iocs.csv`](./incidents/2026-05-13-ajunaverse-mvp/iocs.csv)**
-  → **[`incidents/2026-05-13-ajunaverse-mvp/iocs.json`](./incidents/2026-05-13-ajunaverse-mvp/iocs.json)**
+  → **[`iocs.csv`](./incidents/2026-05-13-ajunaverse-mvp/iocs.csv)**
+  → **[`iocs.json`](./incidents/2026-05-13-ajunaverse-mvp/iocs.json)**
 - **Detection rules** — three YARA rules (source-code scanning), three Sigma rules (process / DNS / proxy telemetry), four grep one-liners for analyst use, plus DNS/proxy blocklist guidance and a "rule maintenance" section explaining which rules are durable vs. fragile when the campaign rotates idioms:
-  → **[`incidents/2026-05-13-ajunaverse-mvp/detection-rules.md`](./incidents/2026-05-13-ajunaverse-mvp/detection-rules.md)**
+  → **[`detection-rules.md`](./incidents/2026-05-13-ajunaverse-mvp/detection-rules.md)**
 
 ### 🔍 You're a security researcher or threat-intel analyst who wants the full case file
 
@@ -53,15 +53,15 @@ All members of the same multi-org operation. Each carries the same `verify(setAp
 
 ### Current-generation loader (`server/routes/api/auth.js`)
 
-| Repository | Org / User type | Lure theme | Confidence | Notes |
-|---|---|---|---|---|
-| [AjunaWorkHub/AjunaVerse_MVP](https://github.com/AjunaWorkHub/AjunaVerse_MVP) | org | Web3 metaverse / staking / sports betting | High | **Primary case file** — full reverse-engineering analysis [here](./incidents/2026-05-13-ajunaverse-mvp/). Org id 276264331, created 2026-04-27. |
-| [AetSoftWorkHub/AetSoft_MVP](https://github.com/AetSoftWorkHub/AetSoft_MVP) | org | Web3 / same description text as AjunaVerse | High | Bit-identical `.vscode/tasks.json` blob (SHA `998c34f02d94169a546b4c36123d552dd14f985b`). Org id 276275397, created the same day as AjunaWorkHub. |
-| [DLabsHungary-Hub9/DLabs-Platform-MVP2](https://github.com/DLabsHungary-Hub9/DLabs-Platform-MVP2) | org | Generic platform MVP | High | "Hub9" naming convention matches the `GitWorkHub9` committer email. |
-| [roamanbuild/OnyxVerse](https://github.com/roamanbuild/OnyxVerse) | user | Web3 metaverse | High | |
-| [khaleb-dev/jackpot](https://github.com/khaleb-dev/jackpot) | user | Gambling / jackpot | High | |
-| [rony1235/Jp-Soccer](https://github.com/rony1235/Jp-Soccer) | user | Sports betting / soccer | High | |
-| [mspkteam/williampotter](https://github.com/mspkteam/williampotter) | user | (unclear; possibly fan-fic / unrelated decoy) | High | |
+| Repository | Org / User type | Lure theme | Confidence |
+|---|---|---|---|
+| [AjunaWorkHub/AjunaVerse_MVP](https://github.com/AjunaWorkHub/AjunaVerse_MVP) | org | Web3 metaverse / staking / sports betting | High |
+| [AetSoftWorkHub/AetSoft_MVP](https://github.com/AetSoftWorkHub/AetSoft_MVP) | org | Web3 / metaverse | High |
+| [DLabsHungary-Hub9/DLabs-Platform-MVP2](https://github.com/DLabsHungary-Hub9/DLabs-Platform-MVP2) | org | Generic platform MVP | High |
+| [roamanbuild/OnyxVerse](https://github.com/roamanbuild/OnyxVerse) | user | Web3 metaverse | High |
+| [khaleb-dev/jackpot](https://github.com/khaleb-dev/jackpot) | user | Gambling / jackpot | High |
+| [rony1235/Jp-Soccer](https://github.com/rony1235/Jp-Soccer) | user | Sports betting / soccer | High |
+| [mspkteam/williampotter](https://github.com/mspkteam/williampotter) | user | (unclear; possibly fan-fic / unrelated decoy) | High |
 
 ### Earlier-generation loader (`app/controllers/frontController.js`)
 
@@ -79,18 +79,11 @@ Same loader code, different scaffold. Some of these may be on **compromised legi
 | [dappfusion/defi-real-estate](https://github.com/dappfusion/defi-real-estate) | user/org | Real-estate tokenization | Medium |
 | [InvescoHub/defi-real-estate](https://github.com/InvescoHub/defi-real-estate) | user/org | Real-estate tokenization | Medium |
 
-### Attacker-owned identities (highest-confidence)
-
-The following accounts are highly likely to be operator-controlled (not victims of compromise) and are the appropriate target of organization/user-level suspension requests:
-
-- **Orgs:** `AjunaWorkHub` (id 276264331), `AetSoftWorkHub` (id 276275397), `DLabsHungary-Hub9`
-- **Users:** `GitWorkHub9` (id 272514006; sole committer to `AjunaVerse_MVP`, email `fatihafariya8+2@gmail.com`), `GitWorkHub99` (id 213663943; ~20 credibility-farming clones plus a sibling campaign repo `AetSoftVerse`)
-
-The `+2` Gmail-alias convention on the committer email implies parallel personas at `+1` / `+3` / etc.
+The operator-controlled organizations and user accounts behind these repositories — including the per-entity signals justifying that classification (creation dates, GitHub IDs, naming patterns, commit-author email conventions, etc.) — are catalogued in each incident's case file. See the case file linked under [Incidents analyzed in this repo](#incidents-analyzed-in-this-repo) below.
 
 ### Encountered a repo not on this list?
 
-If a recruiter pointed you at a repository that fits the same shape but isn't above, the briefing's diagnostic grep — `grep -RIn -E 'new Function\(["'\''"]require["'\''"],|verify\(setApiKey|x-app-request|"runOn":[[:space:]]*"folderOpen"' .` — will tell you in one shot whether it's the same campaign. If it hits, please [add it](./incidents/2026-05-13-ajunaverse-mvp/iocs.csv) (or ping me with the URL and I will).
+If a recruiter pointed you at a repository that fits the same shape but isn't above, the briefing's diagnostic grep — `grep -RIn -E 'new Function\(["'\''"]require["'\''"],|verify\(setApiKey|x-app-request|"runOn":[[:space:]]*"folderOpen"' .` — will tell you in one shot whether it's the same campaign. If it hits, please open an issue with the URL (or, if you have push access, [add it to the IOCs](./incidents/2026-05-13-ajunaverse-mvp/iocs.csv) directly).
 
 ---
 
@@ -98,9 +91,9 @@ If a recruiter pointed you at a repository that fits the same shape but isn't ab
 
 | Date | Slug | Verdict | Quick links |
 |---|---|---|---|
-| 2026-05-13 | [ajunaverse-mvp](./incidents/2026-05-13-ajunaverse-mvp/) | confirmed malicious; member of the "Contagious Interview" TTP cluster, ≥15 sibling repos | [master](./incidents/2026-05-13-ajunaverse-mvp/README.md) · [for devs](./incidents/2026-05-13-ajunaverse-mvp/briefing-for-developers.md) · [GH abuse](./incidents/2026-05-13-ajunaverse-mvp/abuse-report-github.md) · [Vercel abuse](./incidents/2026-05-13-ajunaverse-mvp/abuse-report-vercel.md) · [IOCs](./incidents/2026-05-13-ajunaverse-mvp/iocs.csv) · [rules](./incidents/2026-05-13-ajunaverse-mvp/detection-rules.md) |
+| 2026-05-13 | [ajunaverse-mvp](./incidents/2026-05-13-ajunaverse-mvp/) | confirmed malicious; member of the "Contagious Interview" TTP cluster, ≥15 sibling repos | [case file](./incidents/2026-05-13-ajunaverse-mvp/README.md) · [for devs](./incidents/2026-05-13-ajunaverse-mvp/briefing-for-developers.md) · [GH abuse](./incidents/2026-05-13-ajunaverse-mvp/abuse-report-github.md) · [Vercel abuse](./incidents/2026-05-13-ajunaverse-mvp/abuse-report-vercel.md) · [IOCs](./incidents/2026-05-13-ajunaverse-mvp/iocs.csv) · [rules](./incidents/2026-05-13-ajunaverse-mvp/detection-rules.md) |
 
-(Note: each "incident" is the case file built from a single encounter. The case file covers the broader campaign that encounter belongs to — so a single incident folder's artifacts apply across the cluster identified during that analysis. The [Known campaign repositories](#known-campaign-repositories) table above is the live list of all known cluster members.)
+Each incident folder contains the master analysis (with full operator identification, attribution, and the specific permalinks / commit SHAs analyzed) plus the audience-targeted derivatives. Incident-level artifacts apply across the cluster they identified during analysis — the [Known campaign repositories](#known-campaign-repositories) table above is the live catalog of all known cluster members across all incidents.
 
 ---
 
@@ -117,13 +110,13 @@ This is a personal workspace for analyzing developer-targeted social-engineering
 ### Layout
 
 ```
-README.md                                          this file (audience-first entry point)
+README.md                                          this file (audience-first entry point; cluster-level, no per-case specifics)
 incidents/
   YYYY-MM-DD-<short-slug>/
-    README.md                                      master analysis (the canonical record)
+    README.md                                      master analysis (the canonical record; contains case-specific specifics)
     briefing-for-developers.md                     short forwardable read for would-be victims
-    abuse-report-github.md                         copy-paste-ready ticket body for GitHub T&S
-    abuse-report-vercel.md                         copy-paste-ready ticket body for Vercel abuse
+    abuse-report-github.md                         copy-paste template for GitHub T&S filings
+    abuse-report-vercel.md                         copy-paste template for Vercel abuse filings
     iocs.csv                                       machine-readable IOCs (spreadsheet-friendly)
     iocs.json                                      machine-readable IOCs (tool-friendly)
     detection-rules.md                             YARA + Sigma + grep rules for blue-team detection
@@ -132,7 +125,8 @@ incidents/
 ### Conventions
 
 - One incident → one directory. Directory name is `YYYY-MM-DD-<slug>` where the date is the encounter date and the slug is the lure / target repo name (not the attacker's chosen branding).
-- The master analysis is always `README.md` inside the incident directory, so GitHub renders it when you navigate in.
+- The master analysis is always `README.md` inside the incident directory, so GitHub renders it when you navigate in. **All per-case specifics — operator org/user names, GitHub IDs, commit-author emails, commit SHAs, dynamic-analysis observations — live here.**
+- Abuse-report files are **templates with placeholders** for the case-specific bits (`<YOUR_REPO_URL>`, `<COMMIT_SHA>`, `<YOUR_NAME>`) — the filer fills in from the case file before submitting. Campaign-wide IOCs (operator-controlled org/user names, C2 hostnames, etc.) are kept concrete in the templates because they're the same for any filer in this campaign.
 - Derivative artifacts use stable filenames (`briefing-for-developers.md`, `abuse-report-<service>.md`, `iocs.{csv,json}`, `detection-rules.md`) so they're predictable across incidents and audiences know exactly where to look.
 - If a derivative type doesn't apply to a given incident (e.g., no Vercel-hosted C2 → no Vercel abuse report), omit the file rather than leaving an empty placeholder.
-- When an incident analysis reveals a broader campaign (as 2026-05-13-ajunaverse-mvp did), the campaign-level findings are surfaced on this top-level README — see [Known campaign repositories](#known-campaign-repositories) — so visitors arriving from any campaign member can find themselves.
+- The top-level README is the **cluster/campaign view** — campaign-catalog tables, audience routing, repo conventions. It does not name specific operator orgs or user accounts; those go in the incident case file.

