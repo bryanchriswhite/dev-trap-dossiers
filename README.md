@@ -24,6 +24,8 @@ The abuse reports below are **copy-paste templates** that any campaign-affected 
 
 - **GitHub Trust & Safety** (https://github.com/contact/report-abuse) → **[`abuse-report-github.md`](./incidents/2026-05-13-ajunaverse-mvp/abuse-report-github.md)**. The campaign warrants multiple filings through GitHub's three abuse flows: one against the repository you encountered, plus per-entity filings against each operator-controlled organization and user account named in the case file. The template contains a filing checklist with the UI flow per entity type, a signals-based justification of which entities qualify for suspension (vs. compromised legitimate accounts), and templated subject + body code blocks for both the main report and the per-entity filings. Includes AUP citations and corroborating-third-party-write-up references.
 - **Vercel abuse** (https://vercel.com/help) → **[`abuse-report-vercel.md`](./incidents/2026-05-13-ajunaverse-mvp/abuse-report-vercel.md)**. The C2 hostnames serve the entire campaign, so this filing is by nature cluster-wide. Includes a reproducible 30-second curl probe the abuse-desk analyst can run to verify the C2's IP-allowlist gating themselves.
+- **Gmail / Google** (https://support.google.com/mail/contact/abuse) → **[`abuse-report-gmail.md`](./incidents/2026-05-13-ajunaverse-mvp/abuse-report-gmail.md)**. The operator's commit-author Gmail (`fatihafariya8+2@gmail.com`) sits on a single parent inbox (`fatihafariya8@gmail.com`) that the `+N` alias convention routes every persona's mail back to. Action on the parent address simultaneously disables every operator persona at `+1`, `+2`, `+3`, … off that inbox — the single highest-leverage takedown vector in the cluster. The case-specific recruiter-outreach Gmail address (if the filer received one in their inbox) is an optional placeholder; the body stands on the cluster-wide commit-author evidence without it.
+- **Calendly** (https://help.calendly.com/hc/en-us/requests/new) → **[`abuse-report-calendly.md`](./incidents/2026-05-13-ajunaverse-mvp/abuse-report-calendly.md)**. Applies when the recruiting outreach included a Calendly booking link. Inherently case-specific — Calendly URLs are per-persona and aren't surfaced on the malicious GitHub repos themselves — so the Calendly URL, persona name, and event title from the filer's recruiter message are the meat of the filing; the cluster-wide GitHub repo + Gmail-identity linkage is prefilled. AUP citation included.
 
 ### 🛡 You're a blue-team / detection engineer building rules or feeding a SIEM/TIP
 
@@ -167,6 +169,8 @@ incidents/
     briefing-for-developers.md                     short forwardable read for would-be victims
     abuse-report-github.md                         copy-paste template for GitHub T&S filings
     abuse-report-vercel.md                         copy-paste template for Vercel abuse filings
+    abuse-report-gmail.md                          copy-paste template for Gmail / Google abuse filings
+    abuse-report-calendly.md                       copy-paste template for Calendly Trust & Safety filings
     iocs.csv                                       machine-readable IOCs (spreadsheet-friendly)
     iocs.json                                      machine-readable IOCs (tool-friendly)
     detection-rules.md                             YARA + Sigma + grep rules for blue-team detection

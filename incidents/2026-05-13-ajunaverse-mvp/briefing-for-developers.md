@@ -106,7 +106,7 @@ Assume the host is compromised. Don't try to clean it in place.
 6. **Review your GitHub account.** Personal access tokens (revoke any not in active use), SSH keys (remove any unfamiliar ones), OAuth apps and integrations, recent push activity for any unfamiliar repos or commits, recent fork/star activity.
 7. **Strongly consider reimaging the machine.** A determined RCE payload in this family usually drops a persistence agent. Cleaning in place is an arms race you don't need to fight.
 8. **Don't engage with the recruiter further.** Don't tell them you noticed. Don't unblock them. Save the conversation as evidence.
-9. **Report.** GitHub Trust & Safety, Vercel abuse, and the platform the recruiter contacted you on (LinkedIn / Calendly / Discord / Telegram). Pre-written reports for GitHub and Vercel are in this incident folder; they take 60 seconds to file.
+9. **Report.** Pre-written 60-second reports for **GitHub Trust & Safety**, **Vercel abuse**, **Gmail / Google**, and **Calendly** are in this incident folder — file the ones that apply to your case. (Gmail applies if the recruiter contacted you from a Gmail address or hosted the Calendly invite under one; Calendly applies if you received a Calendly booking link.) Plus any other platform the recruiter contacted you on that isn't covered above (LinkedIn / Discord / Telegram).
 
 ---
 
