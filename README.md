@@ -34,6 +34,8 @@ The abuse reports below are **copy-paste templates** that any campaign-affected 
   - realfraction-family → **[`abuse-report-vercel.md`](./incidents/2026-05-18-realfraction/abuse-report-vercel.md)**. Cluster-wide; covers three Vercel-hosted realfraction-family C2s — one currently live (`www.isillegalregion.com`) plus two already-DEPLOYMENT_DISABLED Vercel deployments. Includes a reproducible curl probe that returns a ~2.85 MB stage-2 payload from the live C2.
 - **Registrar abuse** (per-registrar):
   - realfraction-family → **[`abuse-report-registrar.md`](./incidents/2026-05-18-realfraction/abuse-report-registrar.md)**. Two filings: Name.com (for `isillegalregion.com`, the live C2 apex) and Namecheap (for `realfraction.xyz`, the lure-brand domain). Note: the apex of the realfraction-family's first C2 (`ipregionchecker.com`, registered at Unstoppable Domains) is already on registrar `client hold` — no filing needed.
+- **Gmail / Google** (https://support.google.com/mail/contact/abuse) → **[`abuse-report-gmail.md`](./incidents/2026-05-13-ajunaverse-mvp/abuse-report-gmail.md)**. AjunaVerse-family. The operator's commit-author Gmail (`fatihafariya8+2@gmail.com`) sits on a single parent inbox (`fatihafariya8@gmail.com`) that the `+N` alias convention routes every persona's mail back to. Action on the parent address simultaneously disables every operator persona at `+1`, `+2`, `+3`, … off that inbox — the single highest-leverage takedown vector in the AjunaVerse cluster. The case-specific recruiter-outreach Gmail address (if the filer received one in their inbox) is an optional placeholder; the body stands on the cluster-wide commit-author evidence without it. No realfraction-family equivalent yet — the realfraction trojan-commit authorship was re-attributed to real-developer handles rather than persona Gmails (see incident 2026-05-18-realfraction §7.2).
+- **Calendly** (https://help.calendly.com/hc/en-us/requests/new) → **[`abuse-report-calendly.md`](./incidents/2026-05-13-ajunaverse-mvp/abuse-report-calendly.md)**. AjunaVerse-family. Applies when the recruiting outreach included a Calendly booking link. Inherently case-specific — Calendly URLs are per-persona and aren't surfaced on the malicious GitHub repos themselves — so the Calendly URL, persona name, and event title from the filer's recruiter message are the meat of the filing; the cluster-wide GitHub repo + Gmail-identity linkage is prefilled. AUP citation included.
 
 ### 🛡 You're a blue-team / detection engineer building rules or feeding a SIEM/TIP
 
@@ -253,6 +255,8 @@ incidents/
     abuse-report-github.md                         copy-paste template for GitHub T&S filings
     abuse-report-vercel.md                         copy-paste template for Vercel abuse filings
     abuse-report-registrar.md                      copy-paste template for domain-registrar abuse filings (where the abuse path is domain revocation)
+    abuse-report-gmail.md                          copy-paste template for Gmail / Google abuse filings
+    abuse-report-calendly.md                       copy-paste template for Calendly Trust & Safety filings
     iocs.csv                                       machine-readable IOCs (spreadsheet-friendly)
     iocs.json                                      machine-readable IOCs (tool-friendly)
     detection-rules.md                             YARA + Sigma + grep rules for blue-team detection

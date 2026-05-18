@@ -507,7 +507,15 @@ The malicious `.vscode/tasks.json` blob in this campaign has been observed with 
 > 2. `ip-core-api-one.vercel.app` — Node `new Function`-loader and `process.env` exfiltration endpoint. Resolves to `64.29.17.131`, `216.198.79.131`.
 > Both deployments implement target-IP allowlisting; non-target IPs receive HTTP 403 with body `Host not in allowlist` (header `x-deny-reason: host_not_allowed`). Same operator, same deployment slice. Source repository: `https://github.com/AjunaWorkHub/AjunaVerse_MVP` (`.env` line 16 carries the base64-encoded URL for the second host).
 
-**Calendly/LinkedIn/etc.** (if applicable): include screenshots of the original recruiter contact and the link to this write-up.
+**Gmail / Google** (https://support.google.com/mail/contact/abuse):
+
+> The Gmail address `fatihafariya8@gmail.com` (observed in the wild as `fatihafariya8+2@gmail.com`) is the commit-author identity on the malicious repository `https://github.com/AjunaWorkHub/AjunaVerse_MVP`. The `+N` alias convention — atypical of legitimate users — is the operator's bookkeeping for parallel personas off a single inbox. Action on the parent address `fatihafariya8@gmail.com` simultaneously disables every persona at `+1`, `+2`, `+3`, … that routes to that inbox, making this the single highest-leverage takedown vector in the cluster. Full template: [`abuse-report-gmail.md`](./abuse-report-gmail.md).
+
+**Calendly** (https://help.calendly.com/hc/en-us/requests/new):
+
+> The Calendly scheduling URL the recruiter sent (case-specific — fill in from your inbox) is the recruiting-funnel front end: victims are scheduled via Calendly and then directed to the malicious GitHub repository ahead of the booked call. The Calendly page does not itself host the malware (that's in the GitHub repo and the Vercel C2), but the booking flow is the entry point that walks victims into running it. Full template: [`abuse-report-calendly.md`](./abuse-report-calendly.md).
+
+**Other platforms the recruiter contacted you on** (LinkedIn / Discord / Telegram): include screenshots of the original recruiter contact and the link to this write-up.
 
 ### 8.3 For other developers in this funnel
 
