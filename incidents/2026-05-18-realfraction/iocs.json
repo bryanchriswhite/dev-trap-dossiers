@@ -23,17 +23,27 @@
   "ipv4_note": "Domain did not resolve from the analysis sandbox at the time of investigation; A records not captured. Anyone with unrestricted egress should resolve and add the results.",
   "github": {
     "organizations": [
-      {"login": "realfraction", "type": "org", "public_repos": 1, "contact_email": "hello@realfraction.xyz", "confidence": "high"}
+      {"login": "realfraction", "type": "org", "public_repos": 1, "contact_email": "hello@realfraction.xyz", "confidence": "high", "status": "live"},
+      {"login": "ChainVisitaTech", "type": "org", "confidence": "medium", "status": "404 at time of analysis (operator-pulled, GH T&S action, or renamed)", "note": "Previously hosted ChainVisitaTech/realfraction-mvp with the same RealFraction MVP codebase as realfraction/realfraction (same README opening line; same Solidity contract names). Loader presence not directly verified (contents no longer fetchable)."}
     ],
     "users": [
-      {"login": "urmybestfriend", "role": "author of trojan commit introducing the loader", "confidence": "high", "note": "Also appears as author on other commits in the history; likely re-attributed via fork-import from an upstream legitimate codebase. Authorship of the trojan commit is the high-confidence claim; authorship of the surrounding history is not."}
+      {"login": "urmybestfriend", "role": "named author of trojan commit; not believed to be operator-controlled", "confidence": "high (committer identity is real); low (operator association)", "note": "Real, long-history developer account (53 public repos, 1,300 followers). Working hypothesis is that the operator forked a legitimate scaffold and either preserved or re-attributed commits to this and other real-developer handles. The trojan-commit author field is not evidence of operator-account control."},
+      {"login": "cncolder", "role": "named author of release/integrate commit; not believed to be operator-controlled", "confidence": "high (committer identity is real); low (operator association)", "note": "Real, long-history developer account (Yanlin Jiang; 164 public repos; Arctic Code Vault contributor; Taro-framework maintainer)."},
+      {"login": "hinchley2018", "role": "named author of frontend-styling commits; not believed to be operator-controlled", "confidence": "high (committer identity is real); low (operator association)", "note": "Real, long-history developer account (204 public repos; based in Texas; .NET/React/Azure)."},
+      {"login": "danbovey", "role": "named author of frontend-page commits; not believed to be operator-controlled", "confidence": "high (committer identity is real); low (operator association)", "note": "Real, long-history developer account (Dan Bovey; 50 public repos; London; OakNorth Bank; known for react-infinite-scroller / 3.3k stars)."}
     ],
     "repositories": {
       "loader_path": "server/utils/regionChecker.js",
       "trigger_site": "server/controllers/userController.js (side-effect require, variable never read)",
-      "current_generation": ["realfraction/realfraction"]
+      "current_generation_confirmed": ["realfraction/realfraction"],
+      "current_generation_sibling_unverified": [
+        {"repo": "ChainVisitaTech/realfraction-mvp", "status": "404", "note": "Same codebase as realfraction/realfraction per Google-indexed snippets; loader presence not verifiable due to repo removal"}
+      ]
     }
   },
+  "lure_brand_domains": [
+    {"value": "realfraction.xyz", "role": "lure-brand domain for the realfraction GitHub org contact email", "confidence": "medium", "note": "HTTP 403 to WebFetch from this sandbox; gating not yet characterized"}
+  ],
   "emails": [
     {"value": "hello@realfraction.xyz", "source": "realfraction org profile", "note": "Contact email; domain separate from C2 domain"}
   ],

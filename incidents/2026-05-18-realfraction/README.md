@@ -258,6 +258,42 @@ Recording the response (including TLS certificate chain, response headers, and f
 
 ## 7. Campaign-footprint observations
 
+### 7.1 Sibling-instance identification
+
+A targeted cluster-expansion sweep was performed from this sandbox, seeded on the distinctive strings in the loader (C2 host, C2 path, magic header, eval primitive paired with the magic header) and on the distinctive contract names in the Solidity tree (`FractionalPropertyToken`, `FractionalPropertyFactory`, `RealFractionToken`, `PropertyNft`, `RentalManager`, `RealFraction` brand). Findings:
+
+- **One sibling repo identified: `ChainVisitaTech/realfraction-mvp`.** A second GitHub repo carrying the same RealFraction MVP codebase under a different owning org. Identified via Google search results that quote the exact same README opening line (`"RealFraction is a blockchain-powered smart real estate platform"`) and the same Solidity contract names. Both the `ChainVisitaTech` org page and the `ChainVisitaTech/realfraction-mvp` repo currently return **HTTP 404** — either the operator has pulled them, GitHub Trust & Safety has already actioned them, or the org has been renamed. Confidence: **medium-high** that this is a same-codebase sibling instance; **loader presence in that specific repo could not be directly verified** because the contents are no longer fetchable. The 404 status is itself a meaningful signal — a single-purpose org with identical-codebase to a confirmed-malicious sibling, where the repo has disappeared between indexing and re-fetch.
+- **No additional GitHub orgs / users identified.** The campaign's broader sibling expansion was bounded by limitations of this sandbox (see §7.3) — authenticated GitHub code search is not available, so the AjunaVerse-incident-style sweep (which identified ~15 siblings via authenticated code-search hits on the distinctive strings) could not be replicated for the realfraction-family fingerprints. The catalogued footprint of two repos (one live, one 404) is therefore a **lower bound** on operator activity rather than a complete census.
+- **No public C2-hostname hits via Google.** A site-restricted search for `"ipregionchecker.com" site:github.com` returns zero relevant hits. Either the C2 host is exclusive to this generation of the campaign and hasn't been independently reported yet, or its appearance is camouflaged by the search engine's tokenization rules. Combined with the search engine still having indexed `ChainVisitaTech/realfraction-mvp` despite it being 404, the campaign appears to be **fresh** rather than long-tail.
+
+### 7.2 Committer identities: author re-attribution at fork-import
+
+The four committer handles in the realfraction repo's git history were investigated. **All four are real, unrelated, long-history developer accounts:**
+
+- `urmybestfriend` — 53 public repos, 1,300 followers, blockchain/React side projects spanning years.
+- `cncolder` (Yanlin Jiang) — 164 public repos, 88 followers, Pro account, Arctic Code Vault contributor, established Taro-framework maintainer.
+- `hinchley2018` — 204 public repos, 87 followers, based in Texas, ".NET APIs and React interfaces at Imperative Chemical Partners" / teaching at CarityFoundry.
+- `danbovey` (Dan Bovey) — 50 public repos, 89 followers, "Senior Full Stack Engineer at OakNorth Bank", known for `react-infinite-scroller` (3.3k stars).
+
+None of these accounts has any apparent connection to the others, and none has a public repo that materially matches the realfraction codebase shape (different stacks, different domains, different employers). **The working hypothesis is that the operator forked one or more legitimate public scaffolds and either preserved the original commit attribution at fork time or re-attributed commits to these handles using `git commit --author`** (trivial; the email-to-account mapping that GitHub uses for author-linking can be manipulated by anyone who can write a commit). The trojan commit `8cc5120…` shows `urmybestfriend` as author, but that attribution is not evidence of the real `urmybestfriend` account being operator-controlled — the email written into the commit metadata is sufficient to display the wrong name in the GitHub UI.
+
+**Implication for takedown reporting:** none of these four user accounts should be filed against at GitHub T&S. The `realfraction` org is the only operator-controlled GitHub entity confirmed for this incident.
+
+### 7.3 Limits of cluster expansion from this sandbox
+
+The cluster-expansion search from this sandbox was constrained by network egress policy. The following routes — all of which the AjunaVerse incident used — are not available here:
+
+- Authenticated GitHub code search via `gh` CLI or `mcp__github__search_code` (the MCP server in this environment is repo-allowlisted to `bryanchriswhite/dev-trap-dossiers`; cross-org code search is denied).
+- WHOIS lookups via `whois.com` / `whois.iana.org` / `crt.sh` (all returned HTTP 403 to `WebFetch`).
+- DNS-over-HTTPS via `dns.google` / `cloudflare-dns.com` (HTTP 403).
+- VirusTotal / URLscan / RiskIQ (HTTP 403).
+- The Internet Archive Wayback Machine (`Claude Code is unable to fetch from web.archive.org`).
+- Sourcegraph public code search (HTTP 403).
+
+What was available: the unauthenticated GitHub UI (which is enough to read public repo files via `raw.githubusercontent.com` and to view individual profile/repo pages), Google web search via `WebSearch`, and the GitHub MCP tools scoped to the dossier repo. Within those bounds the expansion identified the one sibling instance described in §7.1; a replication of this analysis from an environment with authenticated GitHub code search would very likely find more.
+
+### 7.4 Catalog impact
+
 This incident affects the dossier's cluster catalog in three ways:
 
 1. **A new lure-theme + loader-idiom pair.** Real-estate-tokenization is already in the catalog as an AjunaVerse-family earlier-generation lure (`dappfusion/defi-real-estate`, `InvescoHub/defi-real-estate`). `realfraction` is the same lure theme with a different loader generation. Whether the catalog should fold `realfraction` in as a sibling of the AjunaVerse cluster, or treat it as a parallel "Contagious Interview" sub-cluster, depends on whether any operator-overlap signals emerge (commit-author emails, GitHub numeric ID adjacency, bit-identical artifacts). None observed so far.

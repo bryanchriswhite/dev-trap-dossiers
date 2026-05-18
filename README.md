@@ -2,7 +2,7 @@
 
 A growing record of developer-targeted malware campaigns analyzed in detail, paired with **copy-paste-ready artifacts for the different people who need to act on each one** — would-be victims, abuse desks, detection engineers, security researchers.
 
-**Currently tracking:** an active developer-targeting operation matching the publicly-documented **"Contagious Interview" TTP cluster** (fake-recruiter → clone repo → `npm install`/`npm start` → stealer-loader). **≥16 known repository instances** across at least four GitHub organizations and several individual accounts, spanning **at least three distinct loader-code generations** (two AjunaVerse-family + one realfraction-family). Two Vercel-hosted C2 servers plus one non-Vercel C2 host, operator activity observed at least through mid-May 2026.
+**Currently tracking:** an active developer-targeting operation matching the publicly-documented **"Contagious Interview" TTP cluster** (fake-recruiter → clone repo → `npm install`/`npm start` → stealer-loader). **≥16 confirmed repository instances + 1 medium-confidence sibling** across at least four GitHub organizations and several individual accounts, spanning **at least three distinct loader-code generations** (two AjunaVerse-family + one realfraction-family). Two Vercel-hosted C2 servers plus one non-Vercel C2 host, operator activity observed at least through mid-May 2026.
 
 If you arrived here because of one of the situations below, jump straight to the file that's for you. You don't need to read anything else first.
 
@@ -121,6 +121,7 @@ All repos below are confirmed campaign members (L is verified for every row). Th
 | [dappfusion/defi-real-estate](https://github.com/dappfusion/defi-real-estate) | Real-estate tokenization | AjunaVerse-earlier | L |
 | [InvescoHub/defi-real-estate](https://github.com/InvescoHub/defi-real-estate) | Real-estate tokenization | AjunaVerse-earlier | L |
 | [realfraction/realfraction](https://github.com/realfraction/realfraction) | Real-estate tokenization | realfraction | L (end-to-end review) |
+| ChainVisitaTech/realfraction-mvp | Real-estate tokenization | realfraction (assumed) | (unverified — repo currently 404) |
 
 Note that for most repos only the loader code (**L**) has been directly verified — that's the signal the GitHub code search hit on. The multi-signal rows (AjunaVerse, AetSoft) are the ones we've inspected end-to-end. The rest could have additional signals (**T**, **E**, **I**) but those would need direct inspection of each repo to confirm.
 
@@ -147,6 +148,7 @@ Note that for most repos only the loader code (**L**) has been directly verified
 | [dappfusion](https://github.com/dappfusion) | user/org | Uncertain (not investigated) | — | Owns: `defi-real-estate`. |
 | [InvescoHub](https://github.com/InvescoHub) | user/org | Uncertain (not investigated) | — | Owns: `defi-real-estate` (duplicate repo name). |
 | [realfraction](https://github.com/realfraction) | org | **Operator-owned** (suspend) | A · S | Single-repo, single-purpose GitHub org. Contact email on lure-brand `realfraction.xyz` domain. Owns: `realfraction/realfraction` (realfraction-family generation). |
+| ChainVisitaTech | org | Operator-owned (assumed; already removed) | — | **Currently 404** as of 2026-05-18 — operator-pulled, already actioned by GH T&S, or renamed. Previously hosted `ChainVisitaTech/realfraction-mvp` with identical README opening line and identical Solidity contract names to `realfraction/realfraction`. Loader presence not directly verifiable. No abuse filing needed (already gone). |
 
 The detailed signals justifying each operator-owned classification (and the methodology used to verify them) are in each incident's case file. See [Incidents analyzed in this repo](#incidents-analyzed-in-this-repo) below.
 
