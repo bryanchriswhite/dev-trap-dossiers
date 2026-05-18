@@ -21,24 +21,51 @@ rule RealFraction_NodeJS_RegionChecker_Loader
         reference   = "https://github.com/realfraction/realfraction"
 
     strings:
-        $magic_header_kv = /['"]x-secret-header['"]\s*:\s*['"]secret['"]/
-        $magic_header    = "x-secret-header"
-        $eval_data       = /\beval\s*\(\s*data\s*\)/
-        $neg_gate_str    = /data\s*===\s*['"]blocked['"]/
-        $neg_gate_json   = /JSON\.parse\s*\(\s*data\s*\)\s*\?\.\s*blocked/
-        $c2_host         = "ipregionchecker.com"
-        $c2_path         = "/api/ip-check-encrypted/"
+        $magic_header_kv      = /['"]x-secret-header['"]\s*:\s*['"]secret['"]/
+        $magic_header         = "x-secret-header"
+        $eval_data            = /\beval\s*\(\s*(data|response\.data)\s*\)/
+        $func_ctor            = /new\s+Function\.constructor\s*\(\s*['"]require['"]\s*,/
+        $neg_gate_str         = /data\s*===\s*['"]blocked['"]/
+        $neg_gate_json        = /JSON\.parse\s*\(\s*data\s*\)\s*\?\.\s*blocked/
+        $c2_ipregionchecker   = "ipregionchecker.com"
+        $c2_isillegalregion   = "isillegalregion.com"
+        $c2_cookie_xi_seven   = "cookie-xi-seven.vercel.app"
+        $c2_ip_check_api      = "ip-check-api.vercel.app"
+        $c2_path_dashed       = "/api/ip-check-encrypted/"
+        $c2_path_undashed     = "/api/ipcheck-encrypted/"
+        $api_key_g            = "6KDisdfjlskjDI837KJH4"   /* sub-shape G API key */
+        $api_key_h            = "3948uf2uhe9r298rh2"      /* sub-shape H API key */
 
     condition:
-        // High-confidence: magic header AND eval(data) in the same file.
-        // Or: either of the two negative-gate sentinels in the same file as eval(data).
-        // Or: the literal C2 host or path appears anywhere.
-        ($magic_header_kv and $eval_data) or
-        ($magic_header and $eval_data) or
-        ($neg_gate_str and $eval_data) or
-        ($neg_gate_json and $eval_data) or
-        $c2_host or
-        $c2_path
+        // High-confidence: magic header AND any RCE primitive in the same file.
+        // Or: either of the two negative-gate sentinels paired with eval/Function.constructor.
+        // Or: any known C2 host, path, or shared API-key token appears anywhere.
+        ($magic_header_kv and ($eval_data or $func_ctor)) or
+        ($magic_header    and ($eval_data or $func_ctor)) or
+        ($neg_gate_str    and ($eval_data or $func_ctor)) or
+        ($neg_gate_json   and ($eval_data or $func_ctor)) or
+        any of ($c2_*) or
+        any of ($api_key_*)
+}
+
+rule RealFraction_NodeJS_ConstantsTemplate_SubShapeG
+{
+    meta:
+        description = "realfraction-family sub-shape G constants/index.js template — distinctive multi-line block defining API_HOST + API_SUB_URL + SAMPLE_API_KEY + API_HEADERS + API_URL together. Byte-identical across multiple compromised-victim repos (fabiolin/schoolmgmt, Paulooo0/go-test, KagiyamaWeb/PyPDFMicroservise, Wilovy09/deby-assignment, pablodiaz2799/solice-skill-test, ...). Single hit warrants treating the containing repo as untrusted."
+        author      = "incident 2026-05-18 cluster-expansion sweep"
+        date        = "2026-05-18"
+        severity    = "critical"
+
+    strings:
+        $api_host    = /API_HOST\s*=\s*['"]cookie-xi-seven\.vercel\.app['"]/
+        $api_sub_url = /API_SUB_URL\s*=\s*['"]ipcheck-encrypted['"]/
+        $api_key     = "6KDisdfjlskjDI837KJH4"
+        $api_headers = /API_HEADERS\s*=\s*\{\s*['"]x-secret-header['"]\s*:\s*['"]secret['"]/
+        $api_url     = /API_URL\s*=\s*`https:\/\/\$\{API_HOST\}/
+
+    condition:
+        // The presence of any three of these in the same file is conclusive.
+        3 of them
 }
 
 rule RealFraction_NodeJS_SideEffectImport_Suspicious_UtilName
@@ -73,23 +100,24 @@ A hit on `RealFraction_NodeJS_RegionChecker_Loader` warrants treating the repo a
 
 These work against DNS query logs and HTTP-proxy logs.
 
-### 2.1 DNS query for the campaign C2 host
+### 2.1 DNS query for any realfraction-family C2 host
 
 ```yaml
-title: Campaign DNS query for ipregionchecker.com (realfraction-family loader C2)
+title: Campaign DNS query for any realfraction-family C2 host (ipregionchecker.com / isillegalregion.com / cookie-xi-seven.vercel.app / ip-check-api.vercel.app)
 id: 4a8c9c9f-1a8b-4d4a-8b3a-realfr01
 status: experimental
-description: DNS resolution of a developer host for the realfraction-family loader C2.
+description: DNS resolution of a developer host for any known realfraction-family loader C2 host. Updated 2026-05-18 to add three sibling C2 hosts (isillegalregion.com — live; cookie-xi-seven.vercel.app and ip-check-api.vercel.app — both DEPLOYMENT_DISABLED by Vercel as of 2026-05-18). Hits on the disabled hosts indicate a victim host still running an older loader.
 references:
   - https://github.com/realfraction/realfraction
-author: incident 2026-05-18
+  - https://github.com/bryanchriswhite/dev-trap-dossiers/tree/main/incidents/2026-05-18-realfraction
+author: incident 2026-05-18 cluster-expansion sweep
 date: 2026-05-18
 logsource:
   category: dns
   product: any
 detection:
   selection:
-    QueryName|re: '(?i)^(www\.)?ipregionchecker\.com$'
+    QueryName|re: '(?i)^(www\.)?(ipregionchecker\.com|isillegalregion\.com|cookie-xi-seven\.vercel\.app|ip-check-api\.vercel\.app)$'
   condition: selection
 falsepositives:
   - Legitimate use of an unrelated service of the same name (none observed).
@@ -119,9 +147,9 @@ detection:
   selection_header:
     Headers|contains: 'x-secret-header: secret'
   selection_host_apex:
-    Host|endswith: 'ipregionchecker.com'
+    Host|re: '(?i)(ipregionchecker\.com|isillegalregion\.com|cookie-xi-seven\.vercel\.app|ip-check-api\.vercel\.app)$'
   selection_path:
-    URI|contains: '/api/ip-check-encrypted/'
+    URI|re: '/api/ip-?check-?encrypted/'
   condition:
     selection_method and (selection_header or selection_host_apex or selection_path)
 falsepositives:
@@ -148,7 +176,7 @@ logsource:
   product: any
 detection:
   selection_path:
-    URI|contains: '/api/ip-check-encrypted/'
+    URI|re: '/api/ip-?check-?encrypted/'
   selection_body_literal:
     BodyContent: 'blocked'
   selection_body_json:
@@ -168,18 +196,18 @@ tags:
 Useful as a pre-`npm start` check on a freshly-cloned repo.
 
 ```sh
-# Catches the realfraction-family loader idiom.
+# Catches every known realfraction-family loader idiom (sub-shapes A-H).
 # A single hit warrants treating the repo as untrusted.
 grep -RIn --color=never -E \
-  "https\.request\([^)]*['\"]x-secret-header['\"]|x-secret-header['\"][[:space:]]*:[[:space:]]*['\"]secret['\"]|eval\(data\)|ipregionchecker\.com" \
+  "x-secret-header['\"][[:space:]]*:[[:space:]]*['\"]secret['\"]|new Function\.constructor\(['\"]require['\"]|ipregionchecker\.com|isillegalregion\.com|cookie-xi-seven\.vercel\.app|ip-check-api\.vercel\.app|ipcheck-encrypted|ip-check-encrypted|6KDisdfjlskjDI837KJH4|3948uf2uhe9r298rh2" \
   --exclude-dir=node_modules --exclude-dir=.git .
 ```
 
-Wider grep that catches **both** the AjunaVerse-family and the realfraction-family generations of the broader Contagious Interview cluster:
+Wider grep that catches **both** the AjunaVerse-family and the realfraction-family generations of the broader Contagious Interview cluster. Updated 2026-05-18 to add the sub-shape H `Function.constructor` RCE primitive, the three new realfraction-family C2 hosts (`isillegalregion.com`, `cookie-xi-seven.vercel.app`, `ip-check-api.vercel.app`), and the no-dash path variant (`ipcheck-encrypted`):
 
 ```sh
 grep -RIn --color=never -E \
-  'new Function\(["'\'']require["'\''],|verify\(setApiKey|x-app-request|x-secret-header|"runOn"[[:space:]]*:[[:space:]]*"folderOpen"|ipregionchecker\.com' \
+  'new Function(\.constructor)?\(["'\'']require["'\''],?|verify\(setApiKey|x-app-request|x-secret-header|"runOn"[[:space:]]*:[[:space:]]*"folderOpen"|ipregionchecker\.com|isillegalregion\.com|cookie-xi-seven\.vercel\.app|ip-check-api\.vercel\.app|ipcheck-encrypted|ip-check-encrypted' \
   --exclude-dir=node_modules --exclude-dir=.git .
 ```
 
@@ -210,11 +238,15 @@ grep -RIn -E 'ipregionchecker\.com|/api/ip-check-encrypted/' --exclude-dir=node_
 For organizations with web proxies or DNS sinkholes:
 
 - Block resolution / outbound to:
-  - `www.ipregionchecker.com`
-  - `ipregionchecker.com`
+  - `www.ipregionchecker.com` and apex `ipregionchecker.com` (already on registrar `client hold` at Unstoppable Domains; blocklist anyway in case the operator regains control)
+  - `www.isillegalregion.com` and apex `isillegalregion.com` (**live** as of 2026-05-18; serving stage-2 payload)
+  - `cookie-xi-seven.vercel.app` (currently DEPLOYMENT_DISABLED by Vercel)
+  - `ip-check-api.vercel.app` (currently DEPLOYMENT_DISABLED by Vercel)
+  - `realfraction.xyz` and any `*.realfraction.xyz` (lure-brand domain backing the operator-owned GitHub org's contact email)
 - Alert on outbound HTTP request headers containing `x-secret-header: secret` from developer workstations.
-- Alert on outbound HTTP requests to any path matching `/api/ip-check-encrypted/` (the loader path; the suffix may rotate per generation).
+- Alert on outbound HTTP requests to any path matching `/api/ip-?check-?encrypted/` (the loader path; both dashed and undashed variants observed; the suffix is high-entropy and may rotate per instance).
 - Alert on inbound HTTP response bodies whose first 7 bytes are `blocked` or which contain `"blocked":true` paired with a request path matching the loader path — these are the negative-gate sentinels and their appearance in logs indicates a host on your network was probing the C2 from a non-allowlisted IP. If the host is a developer workstation, it is almost certainly already running the loader.
+- Alert on inbound HTTP responses with header `x-vercel-error: DEPLOYMENT_DISABLED` on a request path matching `/api/ip-?check-?encrypted/` — indicates a developer workstation is still running an older loader pointed at a Vercel deployment that has been taken down. The host should be triaged.
 
 ---
 

