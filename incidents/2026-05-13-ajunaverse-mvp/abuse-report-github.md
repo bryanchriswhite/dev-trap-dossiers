@@ -304,3 +304,5 @@ REPORTED BY
 - IOCs in machine-readable form: [`iocs.csv`](./iocs.csv), [`iocs.json`](./iocs.json)
 - Detection rules: [`detection-rules.md`](./detection-rules.md)
 - Companion abuse report for the Vercel-hosted C2: [`abuse-report-vercel.md`](./abuse-report-vercel.md)
+- Companion abuse report for the operator's Gmail identity: [`abuse-report-gmail.md`](./abuse-report-gmail.md)
+- Companion abuse report for the Calendly recruiting-funnel front end: [`abuse-report-calendly.md`](./abuse-report-calendly.md)

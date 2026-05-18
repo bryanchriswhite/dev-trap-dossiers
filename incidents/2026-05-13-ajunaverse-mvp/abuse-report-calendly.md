@@ -78,7 +78,7 @@ The repository carries three independent code-execution vectors. Any one of them
 
 (2) package.json "prepare" lifecycle hook (and start/build/test/eject scripts) that launches an in-repo Express server during ordinary "npm install" or "npm start".
 
-(3) On server boot, the code at server/routes/api/auth.js POSTs the victim's entire process.env (cloud, GitHub, npm, LLM-provider tokens) to a base64-obfuscated URL committed in .env as AUTH_API, then executes the response body as JavaScript via new Function("require", response.data)(require) -- arbitrary Node RCE as the developer's user.
+(3) On server boot, the code at server/controllers/auth.js and server/routes/api/auth.js POSTs the victim's entire process.env (cloud, GitHub, npm, LLM-provider tokens) to a base64-obfuscated URL committed in .env as AUTH_API, then executes the response body as JavaScript via new Function("require", response.data)(require) -- arbitrary Node RCE as the developer's user.
 
 The same loader is present in at least 14 sibling repositories across three GitHub organizations and several individual accounts -- see the case file at the URL above for the full enumeration. The loader is independently verifiable via GitHub code search on the distinctive strings 'verify(setApiKey(process.env.AUTH_API))' and 'new Function("require", response.data)'.
 
@@ -92,7 +92,7 @@ If the Calendly account behind the page [Calendly URL] is registered to an email
 
 KNOWN AFFECTED GITHUB REPOSITORIES (the cluster the Calendly booking flow leads victims to)
 
-Current-generation repos (loader at server/routes/api/auth.js):
+Current-generation repos (loader at server/controllers/auth.js + server/routes/api/auth.js):
 - https://github.com/AjunaWorkHub/AjunaVerse_MVP
 - https://github.com/AetSoftWorkHub/AetSoft_MVP
 - https://github.com/DLabsHungary-Hub9/DLabs-Platform-MVP2

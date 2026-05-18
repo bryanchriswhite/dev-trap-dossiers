@@ -140,3 +140,5 @@ REPORTED BY
 - Full technical analysis: [`README.md`](./README.md)
 - IOCs in machine-readable form: [`iocs.csv`](./iocs.csv), [`iocs.json`](./iocs.json)
 - Companion abuse report to GitHub T&S: [`abuse-report-github.md`](./abuse-report-github.md)
+- Companion abuse report to Gmail / Google: [`abuse-report-gmail.md`](./abuse-report-gmail.md)
+- Companion abuse report to Calendly: [`abuse-report-calendly.md`](./abuse-report-calendly.md)

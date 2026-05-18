@@ -87,22 +87,20 @@ OBSERVED SIGNALS -- consistent with operator-controlled use, not a legitimate us
 
 CAMPAIGN MECHANISM (so the reviewer can independently verify the loader is malicious)
 
-Observed in [reported repository URL] at commit [commit SHA]:
-
-The repositories in this campaign carry three independent code-execution vectors. Any one of them is sufficient to fully compromise a developer's workstation:
+The repositories in this campaign carry three independent code-execution vectors -- all of them present cluster-wide, and all of them independently verifiable in [reported repository URL] at commit [commit SHA]. Any one of them is sufficient to fully compromise a developer's workstation:
 
 (1) VS Code .vscode/tasks.json with "runOn": "folderOpen" running per-OS curl|bash / wget|sh / curl|cmd against a Vercel-hosted shell-payload distribution host (vscode-settings-*.vercel.app).
 
 (2) package.json "prepare" lifecycle hook (and start/build/test/eject scripts) that launches an in-repo Express server during ordinary "npm install" or "npm start".
 
-(3) On server boot, the code at server/routes/api/auth.js POSTs the victim's entire process.env (cloud, GitHub, npm, LLM-provider tokens) to a base64-obfuscated URL committed in .env as AUTH_API, then executes the response body as JavaScript via new Function("require", response.data)(require) -- arbitrary Node RCE as the developer's user.
+(3) On server boot, the code at server/controllers/auth.js and server/routes/api/auth.js POSTs the victim's entire process.env (cloud, GitHub, npm, LLM-provider tokens) to a base64-obfuscated URL committed in .env as AUTH_API, then executes the response body as JavaScript via new Function("require", response.data)(require) -- arbitrary Node RCE as the developer's user.
 
 All three vectors are present in the repository whose git log carries fatihafariya8+2@gmail.com as the commit-author identity.
 
 
 KNOWN AFFECTED GITHUB REPOSITORIES (the cluster this Gmail address is associated with)
 
-Current-generation repos (loader at server/routes/api/auth.js):
+Current-generation repos (loader at server/controllers/auth.js + server/routes/api/auth.js):
 - https://github.com/AjunaWorkHub/AjunaVerse_MVP   (fatihafariya8+2@gmail.com appears here as commit-author)
 - https://github.com/AetSoftWorkHub/AetSoft_MVP    (sibling org, same-day creation, bit-identical .vscode/tasks.json blob)
 - https://github.com/DLabsHungary-Hub9/DLabs-Platform-MVP2
