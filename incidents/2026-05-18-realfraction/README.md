@@ -39,7 +39,7 @@ The C2 hostname did not resolve from this sandbox at the time of analysis (DNS e
 
 | | |
 |---|---|
-| How it arrived | Flagged by [Maciej Niewrzał (@mniewrzal)](https://github.com/mniewrzal), who forwarded the repo URL with a request to inspect it carefully and treat it as malicious. The original delivery vector upstream of @mniewrzal (recruiter pitch / Telegram / Discord / email / LinkedIn / chance encounter) is not directly known to this analyst. Lure shape, owning-account profile, and loader presence are independently sufficient to classify regardless of delivery vector. |
+| How it arrived | Flagged by [Michał Niewrzał (@mniewrzal)](https://github.com/mniewrzal), who forwarded the repo URL with a request to inspect it carefully and treat it as malicious. The original delivery vector upstream of @mniewrzal (recruiter pitch / Telegram / Discord / email / LinkedIn / chance encounter) is not directly known to this analyst. Lure shape, owning-account profile, and loader presence are independently sufficient to classify regardless of delivery vector. |
 | Pitch surface (README claim) | "RealFraction is a blockchain-powered smart real estate platform" — property tokenization (ERC-721 PropertyNft + ERC-20 FractionalPropertyToken), buy/rent/auction marketplace, on-chain rental agreements, RFT utility token + staking, admin minting via MINTER_ROLE. Generic Web3 buzzword stack. |
 | Actual content | React frontend + Express backend + Hardhat/Solidity. The Solidity contracts and most of the Express controllers/routes appear to be legitimate-looking e-commerce-derivative boilerplate (paytm payment integration, cloudinary uploads, mongo models) — likely carried over from an upstream forked codebase. The malicious code is one 10-line file in `server/utils/`. |
 | Asked of victim (inferred) | `npm install` and `npm start` — standard "clone and run before the call" pattern. The repo's README explicitly instructs this. |
@@ -341,4 +341,4 @@ No `git clone` was performed; no JS from the repo was executed; no `npm install`
 
 ## 10. Acknowledgements
 
-Thanks to **[Maciej Niewrzał (@mniewrzal)](https://github.com/mniewrzal)** for flagging this repository and forwarding it for analysis. Catching campaign-shape repos early — and routing them to someone who can write up the loader, the IOCs, and the takedown templates — is how this cluster's footprint gets reduced.
+Thanks to **[Michał Niewrzał (@mniewrzal)](https://github.com/mniewrzal)** for flagging this repository and forwarding it for analysis. Catching campaign-shape repos early — and routing them to someone who can write up the loader, the IOCs, and the takedown templates — is how this cluster's footprint gets reduced.
