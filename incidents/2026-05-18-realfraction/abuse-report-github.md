@@ -35,6 +35,19 @@ Placeholders appear in the code blocks as `[descriptive label in square brackets
 
 Work top-down. The first filing is the content/malware report on the original repo and carries the full technical evidence; subsequent filings are repo-takedowns for each confirmed sibling and account-level reports against the operator-owned orgs/users identified by the 2026-05-18 cluster-expansion sweep (see [README §7.5](./README.md#75-confirmed-sibling-repos-2026-05-18-cluster-expansion-sweep) and [§7.8](./README.md#78-operator-account-classification)).
 
+**Row-range guide** (jump to the sub-shape you need to file against):
+
+| Rows | Sub-shape | Loader file | Filings of each type |
+|---|---|---|---|
+| 1–4 | A — regionChecker side-effect | `server/utils/regionChecker.js` | 2 repo + 2 org |
+| 5 | B — inline paymentController | `server/controllers/paymentController.js` | 1 repo |
+| 6–15 | C — stockx complianceService | `backend/src/compliance/complianceService.js` | 6 repo + 1 user + 2 org |
+| 16–25 | D — mock/users verify | `server/mock/users.js` | 7 repo + 3 org (row 25 is the uncertain-classification row) |
+| 26–29 | E — settingController verify (cross-gen) | `app/controllers/settingController.js` | 2 repo + 1 org + 1 user |
+| 30–31 | F — redis.js verify | `backend/src/utils/redis.js` | 2 repo |
+| 32–38 | G — constants+loader template (`cookie-xi-seven.vercel.app`) | `backend/src/constants/index.js` + loader call site elsewhere | 7 repo |
+| 39–41 | H — Function.constructor + `ip-check-api.vercel.app` | `backend/src/modules/departments/department-error.js` | 3 repo (row 40 is the uncertain-classification row) |
+
 | # | Target | Action type | URL to paste in the form's "what are you reporting" field | Abuse category to select | Body to paste |
 |---|---|---|---|---|---|
 | 1 | The repo `realfraction/realfraction` (sub-shape A) | Content takedown | `[reported repository URL]` | **Malware or exploits** | [Main report](#main-report) |
