@@ -1,0 +1,18 @@
+type,value,first_seen,confidence,source,notes
+domain,www.ipregionchecker.com,2026-05-18,high,realfraction/realfraction server/utils/regionChecker.js,Sole loader C2; hardcoded URL string literal (not base64-obfuscated)
+domain,ipregionchecker.com,2026-05-18,medium,inference,Apex of the C2 host; likely also operator-controlled
+url,https://www.ipregionchecker.com/api/ip-check-encrypted/3aeb34a31,2026-05-18,high,realfraction/realfraction server/utils/regionChecker.js,Full C2 POST endpoint; returns either negative-gate sentinel or stage-2 JS body depending on caller IP
+url-path,/api/ip-check-encrypted/,2026-05-18,medium,realfraction/realfraction server/utils/regionChecker.js,Path prefix; suffix 3aeb34a31 may rotate per campaign generation
+http-header,x-secret-header: secret,2026-05-18,high,server/utils/regionChecker.js,Magic header sent client->C2 by the loader; effectively zero false positive on outbound dev-host HTTP
+http-body,blocked,2026-05-18,high,loader source,Negative-gate sentinel: literal 7-byte response body causes the loader to return without eval
+http-body,"{""blocked"":true}",2026-05-18,high,loader source,Negative-gate sentinel: JSON form checked via JSON.parse(data)?.blocked
+code-pattern,eval(data),2026-05-18,medium,server/utils/regionChecker.js,RCE primitive; generic on its own but high-signal when paired with x-secret-header
+code-pattern,"https.request(regionCheckApi, { method: 'POST', headers: { 'x-secret-header': 'secret' } }",2026-05-18,high,server/utils/regionChecker.js,Distinctive call shape; matches no normal application code
+code-pattern,"const regionChecker = require(""../utils/regionChecker"")",2026-05-18,medium,server/controllers/userController.js,Side-effect-only import; variable never read; trigger site for the loader
+github-org,realfraction,2026-05-18,high,GitHub org page,Single-repo GitHub org; contact email hello@realfraction.xyz; only public repo is realfraction/realfraction
+github-repo,realfraction/realfraction,2026-05-18,high,direct review,Subject of this incident; loader at server/utils/regionChecker.js
+github-user,urmybestfriend,2026-05-18,high,git log,Author of the trojan commit that introduces server/utils/regionChecker.js; same identity appears on other commits in the history (likely re-attributed from an upstream forked codebase)
+sha-commit,8cc5120bfa3a64a6af14936ce821092ea08cd78d,2026-05-18,high,git log for server/utils/regionChecker.js,Single commit that introduces the loader; subject 'feat(server): add search, pagination, and apiFeatures utils' is unrelated to the two files actually touched (errorHandler.js + regionChecker.js)
+email,hello@realfraction.xyz,2026-05-18,medium,realfraction org profile,Contact email on the owning GitHub org profile; domain realfraction.xyz separate from C2 domain
+lure-theme,Real-estate tokenization Web3 MVP,2026-05-18,high,README.md,PropertyNft ERC-721 + FractionalPropertyToken ERC-20 + Marketplace + RentalManager + RFT staking + admin minting via MINTER_ROLE
+ttp,Contagious Interview,2026-05-18,medium,public reporting,Matches the publicly documented fake-recruiter / DPRK-aligned developer-targeting cluster; specifically the userController.js-as-loader-host archetype catalogued in rubenmarcus/malicious-repositories under real_estate/

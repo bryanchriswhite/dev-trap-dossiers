@@ -1,0 +1,111 @@
+{
+  "incident": "2026-05-18-realfraction",
+  "title": "realfraction/realfraction developer-targeted RCE loader",
+  "first_observed": "2026-05-18",
+  "verdict": "confirmed-malicious",
+  "ttp_cluster": "Contagious Interview (fake recruiter -> clone repo -> npm install/start -> stealer-loader); userController.js-as-loader-host archetype",
+  "summary": "Real-estate-tokenization Web3 MVP repo with a 10-line Node loader at server/utils/regionChecker.js. POSTs to a hardcoded C2 with magic header x-secret-header:secret and eval()s the response body unless the body is 'blocked' or JSON {blocked:true}. Triggered as a require() side-effect from userController.js whenever the Express server starts (which every npm script in this repo does via `concurrently`).",
+  "domains": [
+    {
+      "value": "www.ipregionchecker.com",
+      "role": "loader C2",
+      "endpoints": ["/api/ip-check-encrypted/3aeb34a31"],
+      "magic_header": "x-secret-header: secret",
+      "confidence": "high"
+    },
+    {
+      "value": "ipregionchecker.com",
+      "role": "apex of loader C2; likely operator-controlled",
+      "confidence": "medium"
+    }
+  ],
+  "ipv4": [],
+  "ipv4_note": "Domain did not resolve from the analysis sandbox at the time of investigation; A records not captured. Anyone with unrestricted egress should resolve and add the results.",
+  "github": {
+    "organizations": [
+      {"login": "realfraction", "type": "org", "public_repos": 1, "contact_email": "hello@realfraction.xyz", "confidence": "high"}
+    ],
+    "users": [
+      {"login": "urmybestfriend", "role": "author of trojan commit introducing the loader", "confidence": "high", "note": "Also appears as author on other commits in the history; likely re-attributed via fork-import from an upstream legitimate codebase. Authorship of the trojan commit is the high-confidence claim; authorship of the surrounding history is not."}
+    ],
+    "repositories": {
+      "loader_path": "server/utils/regionChecker.js",
+      "trigger_site": "server/controllers/userController.js (side-effect require, variable never read)",
+      "current_generation": ["realfraction/realfraction"]
+    }
+  },
+  "emails": [
+    {"value": "hello@realfraction.xyz", "source": "realfraction org profile", "note": "Contact email; domain separate from C2 domain"}
+  ],
+  "hashes": {
+    "git_commit_sha1": [
+      {
+        "value": "8cc5120bfa3a64a6af14936ce821092ea08cd78d",
+        "repo": "realfraction/realfraction",
+        "ref": "main",
+        "subject": "feat(server): add search, pagination, and apiFeatures utils",
+        "files_changed": ["server/utils/errorHandler.js", "server/utils/regionChecker.js"],
+        "note": "Subject is unrelated to files touched; classic trojan-commit camouflage"
+      }
+    ]
+  },
+  "http_indicators": [
+    {"header": "x-secret-header: secret", "direction": "client->C2", "description": "Magic header sent by the in-repo loader to www.ipregionchecker.com; effectively zero false positive on outbound dev-host HTTP"},
+    {"body": "blocked", "direction": "C2->client", "description": "Literal 7-byte response body that causes the loader to return without eval; negative-gate sentinel"},
+    {"body": "{\"blocked\":true}", "direction": "C2->client", "description": "JSON form of the negative-gate sentinel; checked via JSON.parse(data)?.blocked"}
+  ],
+  "code_patterns": [
+    {
+      "language": "javascript",
+      "pattern": "https.request(regionCheckApi, { method: 'POST', headers: { 'x-secret-header': 'secret' } }",
+      "confidence": "high",
+      "context": "server/utils/regionChecker.js"
+    },
+    {
+      "language": "javascript",
+      "pattern": "eval(data)",
+      "confidence": "medium",
+      "note": "Generic on its own; high-signal when paired with x-secret-header in the same module"
+    },
+    {
+      "language": "javascript",
+      "pattern": "const regionChecker = require(\"../utils/regionChecker\");",
+      "confidence": "medium",
+      "context": "server/controllers/userController.js",
+      "note": "Side-effect-only import; variable never read; trigger site for the loader"
+    }
+  ],
+  "lures": [
+    "Real-estate tokenization Web3 MVP",
+    "PropertyNft ERC-721 + FractionalPropertyToken ERC-20",
+    "Buy/rent/auction marketplace",
+    "RFT utility token + staking",
+    "Smart-home NFT access (stub)"
+  ],
+  "delivery_chain": [
+    "1. Suspected fake-recruiter outreach delivers the repo URL (delivery vector not directly observed in this incident)",
+    "2. Victim clones realfraction/realfraction and runs `npm install` (no preinstall/postinstall/prepare hooks - safe step)",
+    "3. Victim runs `npm start` (or `npm test`, `npm run build`, `npm run deploy`, `npm run predeploy`, `npm run eject`) - each fires `node server/server.js` via concurrently",
+    "4. Express boot loads app.js -> userRoute.js -> userController.js -> require('../utils/regionChecker') fires the top-level https.request",
+    "5. Loader POSTs to https://www.ipregionchecker.com/api/ip-check-encrypted/3aeb34a31 with header x-secret-header: secret",
+    "6. C2 returns 'blocked' / {blocked:true} for non-target IPs (researcher gate); returns JS body for target IPs",
+    "7. Loader eval()s the response body in module scope (require, process, module all in reach) - full Node RCE",
+    "8. Stage-2 likely a stealer/persistence agent (not retrieved; sandbox could not reach the C2)"
+  ],
+  "comparison_with_ajunaverse_cluster": {
+    "summary": "Same broader Contagious Interview family but a distinct loader generation from both AjunaVerse-family generations in incidents/2026-05-13-ajunaverse-mvp/",
+    "differences": {
+      "loader_path": "server/utils/regionChecker.js (vs server/routes/api/auth.js or app/controllers/frontController.js)",
+      "rce_primitive": "eval(data) (vs new Function(\"require\", response.data)(require))",
+      "c2_delivery": "hardcoded URL in source (vs base64 AUTH_API in committed .env)",
+      "magic_header": "x-secret-header: secret (vs x-app-request: ip-check)",
+      "negative_gate": "response body 'blocked' or JSON {blocked:true} (vs HTTP 403 'Host not in allowlist')",
+      "trigger": "require() side-effect, no call site (vs verify(setApiKey(...)) function call)",
+      "env_exfil_at_loader_stage": "no - POST has no body (vs yes - { ...process.env })",
+      "vscode_tasks_json_autorun": "absent (vs present in current AjunaVerse generation)",
+      "package_json_prepare_postinstall": "absent (vs present in current AjunaVerse generation)",
+      "c2_host_family": "ipregionchecker.com - non-Vercel (vs *.vercel.app)"
+    },
+    "consequence_for_diagnostic_grep": "Existing dossier grep pattern (new Function with require / verify(setApiKey / x-app-request / runOn folderOpen) does not match this repo. Widened grep needed - see detection-rules.md and the §7 note in README.md."
+  }
+}

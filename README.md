@@ -2,7 +2,7 @@
 
 A growing record of developer-targeted malware campaigns analyzed in detail, paired with **copy-paste-ready artifacts for the different people who need to act on each one** — would-be victims, abuse desks, detection engineers, security researchers.
 
-**Currently tracking:** an active developer-targeting operation matching the publicly-documented **"Contagious Interview" TTP cluster** (fake-recruiter → clone repo → `npm install`/`npm start` → stealer-loader). **≥15 known repository instances** across at least three GitHub organizations and several individual accounts. Two Vercel-hosted C2 servers, operator activity observed at least through mid-May 2026.
+**Currently tracking:** an active developer-targeting operation matching the publicly-documented **"Contagious Interview" TTP cluster** (fake-recruiter → clone repo → `npm install`/`npm start` → stealer-loader). **≥16 known repository instances** across at least four GitHub organizations and several individual accounts, spanning **at least three distinct loader-code generations** (two AjunaVerse-family + one realfraction-family). Two Vercel-hosted C2 servers plus one non-Vercel C2 host, operator activity observed at least through mid-May 2026.
 
 If you arrived here because of one of the situations below, jump straight to the file that's for you. You don't need to read anything else first.
 
@@ -14,26 +14,33 @@ If you arrived here because of one of the situations below, jump straight to the
 
 **Stop.** It is very likely a trap.
 
-The campaign covers **at least ~15 known repositories** across multiple GitHub organizations and accounts — see the [Known campaign repositories](#known-campaign-repositories) table below. If you were pointed at any of them — *or at any repo that fits the same shape* (single-author commit history, "Web3 MVP" framing, committed `.env`, fresh GitHub org with one repo, README claims a multi-person team that the commit history doesn't support) — read the developer briefing before doing anything else:
+The campaign covers **at least ~16 known repositories** across multiple GitHub organizations and accounts and **at least three distinct loader generations** — see the [Known campaign repositories](#known-campaign-repositories) table below. If you were pointed at any of them — *or at any repo that fits the same shape* (single-author commit history, "Web3 MVP" framing, fresh GitHub org with one repo, README that pitches a multi-person team or generic-and-team-less platform) — read the developer briefing for the matching generation before doing anything else:
 
-→ **[`briefing-for-developers.md`](./incidents/2026-05-13-ajunaverse-mvp/briefing-for-developers.md)** — 5-minute read. Tells you what the repo would actually do if you ran it, how to spot the trap on GitHub before cloning, how to inspect a freshly-cloned copy safely, what to do if you already ran it, and a single grep that catches the current campaign generation. **Applies to all known instances in the table below.** Forwardable to a colleague.
+→ **[AjunaVerse-family briefing](./incidents/2026-05-13-ajunaverse-mvp/briefing-for-developers.md)** — covers the `*.vercel.app` Vercel-C2 / `verify(setApiKey)` + `new Function("require", response.data)` generations (current and earlier).
+→ **[realfraction-family briefing](./incidents/2026-05-18-realfraction/briefing-for-developers.md)** — covers the `ipregionchecker.com` C2 / `x-secret-header: secret` + `eval(data)` generation, where the loader lives in `server/utils/regionChecker.js` and is triggered as a side-effect `require()`.
+
+Both are 5-minute reads. Forwardable to a colleague.
 
 ### 📮 You're filing a takedown report against any repo in this campaign
 
 The abuse reports below are **copy-paste templates** that any campaign-affected reporter can use. Fill in your case-specific bits — the repo you were pointed at, the commit you analyzed, your name/handle — from the relevant incident's case file before submitting. The campaign-wide indicators (operator-controlled organizations and user accounts, C2 hostnames, etc.) are already in the templates because they're the same across the cluster.
 
-- **GitHub Trust & Safety** (https://github.com/contact/report-abuse) → **[`abuse-report-github.md`](./incidents/2026-05-13-ajunaverse-mvp/abuse-report-github.md)**. The campaign warrants multiple filings through GitHub's three abuse flows: one against the repository you encountered, plus per-entity filings against each operator-controlled organization and user account named in the case file. The template contains a filing checklist with the UI flow per entity type, a signals-based justification of which entities qualify for suspension (vs. compromised legitimate accounts), and templated subject + body code blocks for both the main report and the per-entity filings. Includes AUP citations and corroborating-third-party-write-up references.
-- **Vercel abuse** (https://vercel.com/help) → **[`abuse-report-vercel.md`](./incidents/2026-05-13-ajunaverse-mvp/abuse-report-vercel.md)**. The C2 hostnames serve the entire campaign, so this filing is by nature cluster-wide. Includes a reproducible 30-second curl probe the abuse-desk analyst can run to verify the C2's IP-allowlist gating themselves.
+- **GitHub Trust & Safety** (https://github.com/contact/report-abuse). Pick the template matching the generation of the repo you encountered:
+  - AjunaVerse-family repos → **[`abuse-report-github.md`](./incidents/2026-05-13-ajunaverse-mvp/abuse-report-github.md)** (six filings: one repo + three orgs + two users).
+  - realfraction-family repos → **[`abuse-report-github.md`](./incidents/2026-05-18-realfraction/abuse-report-github.md)** (two filings: one repo + one org).
+  Each template contains a filing checklist with the UI flow per entity type, a signals-based justification of which entities qualify for suspension (vs. compromised legitimate accounts), and templated subject + body code blocks. Includes AUP citations and corroborating-third-party-write-up references.
+- **Vercel abuse** (https://vercel.com/help) → **[`abuse-report-vercel.md`](./incidents/2026-05-13-ajunaverse-mvp/abuse-report-vercel.md)**. Applies to the AjunaVerse-family generation only — the C2 hostnames serve the whole AjunaVerse cluster, so this filing is by nature cluster-wide. The realfraction-family C2 (`ipregionchecker.com`) is not Vercel-hosted; for that, file abuse with the domain's registrar (run `whois ipregionchecker.com` to identify it). Includes a reproducible 30-second curl probe the abuse-desk analyst can run to verify the C2's IP-allowlist gating themselves.
 
 ### 🛡 You're a blue-team / detection engineer building rules or feeding a SIEM/TIP
 
 The IOCs and rules below cover the whole cluster, not just one repo.
 
-- **IOCs** in spreadsheet-friendly CSV and tool-friendly JSON (suitable for MISP / STIX / OpenCTI ingestion):
-  → **[`iocs.csv`](./incidents/2026-05-13-ajunaverse-mvp/iocs.csv)**
-  → **[`iocs.json`](./incidents/2026-05-13-ajunaverse-mvp/iocs.json)**
-- **Detection rules** — three YARA rules (source-code scanning), three Sigma rules (process / DNS / proxy telemetry), four grep one-liners for analyst use, plus DNS/proxy blocklist guidance and a "rule maintenance" section explaining which rules are durable vs. fragile when the campaign rotates idioms:
-  → **[`detection-rules.md`](./incidents/2026-05-13-ajunaverse-mvp/detection-rules.md)**
+- **IOCs** in spreadsheet-friendly CSV and tool-friendly JSON (suitable for MISP / STIX / OpenCTI ingestion). Per-generation:
+  - AjunaVerse-family → **[`iocs.csv`](./incidents/2026-05-13-ajunaverse-mvp/iocs.csv)** · **[`iocs.json`](./incidents/2026-05-13-ajunaverse-mvp/iocs.json)**
+  - realfraction-family → **[`iocs.csv`](./incidents/2026-05-18-realfraction/iocs.csv)** · **[`iocs.json`](./incidents/2026-05-18-realfraction/iocs.json)**
+- **Detection rules** — per-generation YARA, Sigma, and grep rules. The realfraction-family ruleset is additive to (not a replacement for) the AjunaVerse-family ruleset; run both:
+  - AjunaVerse-family → **[`detection-rules.md`](./incidents/2026-05-13-ajunaverse-mvp/detection-rules.md)** (three YARA rules, three Sigma rules, grep one-liners).
+  - realfraction-family → **[`detection-rules.md`](./incidents/2026-05-18-realfraction/detection-rules.md)** (two YARA rules, three Sigma rules, grep one-liners including a combined-generation grep).
 
 ### 🔍 You're a security researcher or threat-intel analyst who wants the full case file
 
@@ -49,7 +56,13 @@ Same master file as the previous bullet, but jump straight to **§4 "Annotated t
 
 ## Known campaign repositories
 
-All members of the same multi-org operation. Each repo carries the same `verify(setApiKey(process.env.AUTH_API))` + `new Function("require", response.data)` Node-loader idiom (or its earlier-generation equivalent). **The artifacts in this repo — briefing, abuse reports, detection rules, IOCs — apply across the whole campaign, not just to any one repo.**
+All members of the same broader "Contagious Interview" cluster, but spanning **multiple loader-code generations** that differ in idiom, C2 host family, and trigger surface. As of this writing, three generations are documented:
+
+- **AjunaVerse-family, current generation** — loader at `server/routes/api/auth.js`; `verify(setApiKey(process.env.AUTH_API))` + `new Function("require", response.data)(require)`; `x-app-request: ip-check` magic header; Vercel-hosted C2; usually paired with a `.vscode/tasks.json` autorun and a `prepare` lifecycle hook.
+- **AjunaVerse-family, earlier generation** — loader at `app/controllers/frontController.js`; same idiom as the current generation; different surrounding scaffold.
+- **realfraction-family** — loader at `server/utils/regionChecker.js`; bare `eval(data)` after `https.request(..., {headers: {'x-secret-header': 'secret'}})`; non-Vercel C2 (`ipregionchecker.com`); triggered as a `require()` side-effect from `userController.js`; no `.vscode/tasks.json` and no `prepare`/`postinstall` hooks.
+
+**The artifacts in this repo — briefing, abuse reports, detection rules, IOCs — apply across the whole campaign, but specific filenames are per-generation (linked above and in the per-incident folders).**
 
 The catalog separates two distinct concerns:
 
@@ -66,9 +79,9 @@ Each entity below shows which verifiable signals it satisfies. **Multi-signal cl
 
 | Code | What it means |
 |---|---|
-| **L** | **Loader code present in the repo** (verified via GitHub code search on the distinctive strings). Strongest single observable — the repo is part of the campaign. |
-| **T** | **VS Code `.vscode/tasks.json` autorun** on `folderOpen` with piped shell payload is present in the repo. |
-| **E** | **Committed `.env`** carries a base64-encoded `AUTH_API` value pointing at the campaign's Node-loader C2. |
+| **L** | **Loader code of any documented generation present in the repo** (verified via direct review or GitHub code search on that generation's distinctive strings). Strongest single observable — the repo is part of the campaign. Per-row, the generation is noted in the table. |
+| **T** | **VS Code `.vscode/tasks.json` autorun** on `folderOpen` with piped shell payload is present in the repo. (AjunaVerse-family-current generation only; absent from earlier AjunaVerse and from realfraction.) |
+| **E** | **Committed `.env`** carries a base64-encoded `AUTH_API` value pointing at the campaign's Node-loader C2. (AjunaVerse-family generations only; realfraction hardcodes the C2 URL in source instead.) |
 | **I** | **Bit-identical artifact** with another known cluster member (e.g. the same git blob SHA for `.vscode/tasks.json`) — proves cross-account operator coordination, not coincidence. |
 
 **Account-level signals** — observable in the owning account/org profile:
@@ -83,26 +96,31 @@ Any verified **L** justifies taking down the repo regardless of account status. 
 
 ### Repositories
 
-All repos below are confirmed campaign members (L is verified for every row). The "Generation" column refers to the loader-code file path: *current* generation has it at `server/routes/api/auth.js`; *earlier* generation has it at `app/controllers/frontController.js`. The loader idiom is the same in both; the difference is the surrounding scaffold.
+All repos below are confirmed campaign members (L is verified for every row). The "Generation" column refers to the loader-code file path and idiom:
+
+- *AjunaVerse-current* — `server/routes/api/auth.js` + `verify(setApiKey)` / `new Function("require", response.data)` / `x-app-request: ip-check` / Vercel C2.
+- *AjunaVerse-earlier* — `app/controllers/frontController.js` + same idiom as AjunaVerse-current; different surrounding scaffold.
+- *realfraction* — `server/utils/regionChecker.js` + `eval(data)` / `x-secret-header: secret` / non-Vercel C2 (`ipregionchecker.com`); triggered as a side-effect require from `userController.js`.
 
 | Repository | Lure theme | Generation | Repo signals verified |
 |---|---|---|---|
-| [AjunaWorkHub/AjunaVerse_MVP](https://github.com/AjunaWorkHub/AjunaVerse_MVP) | Web3 metaverse | current | L · T · E · I |
-| [AetSoftWorkHub/AetSoft_MVP](https://github.com/AetSoftWorkHub/AetSoft_MVP) | Web3 metaverse | current | L · T · I (via bit-identical `tasks.json` blob with AjunaVerse) |
-| [DLabsHungary-Hub9/DLabs-Platform-MVP2](https://github.com/DLabsHungary-Hub9/DLabs-Platform-MVP2) | Generic platform MVP | current | L |
-| [roamanbuild/OnyxVerse](https://github.com/roamanbuild/OnyxVerse) | Web3 metaverse | current | L |
-| [khaleb-dev/jackpot](https://github.com/khaleb-dev/jackpot) | Gambling | current | L |
-| [rony1235/Jp-Soccer](https://github.com/rony1235/Jp-Soccer) | Sports betting | current | L |
-| [mspkteam/williampotter](https://github.com/mspkteam/williampotter) | (unclear) | current | L |
-| [Andrii-888/0gRollplay](https://github.com/Andrii-888/0gRollplay) | dApp / gaming | earlier | L |
-| [prahaladbelavadi/CoinLocatorDemo](https://github.com/prahaladbelavadi/CoinLocatorDemo) | Crypto / locator demo | earlier | L |
-| [sky-cook/tokentradingdapp](https://github.com/sky-cook/tokentradingdapp) | Token-trading dApp | earlier | L |
-| [WilliamSuhosky/Property-Voting-DApp](https://github.com/WilliamSuhosky/Property-Voting-DApp) | Voting dApp | earlier | L |
-| [artemus-jarrett/blockchain-voting-system](https://github.com/artemus-jarrett/blockchain-voting-system) | Voting dApp | earlier | L |
-| [TechByteX/NitroGem](https://github.com/TechByteX/NitroGem) | (unclear) | earlier | L |
-| [jamesm-dev/NitroGem](https://github.com/jamesm-dev/NitroGem) | (unclear) | earlier | L |
-| [dappfusion/defi-real-estate](https://github.com/dappfusion/defi-real-estate) | Real-estate tokenization | earlier | L |
-| [InvescoHub/defi-real-estate](https://github.com/InvescoHub/defi-real-estate) | Real-estate tokenization | earlier | L |
+| [AjunaWorkHub/AjunaVerse_MVP](https://github.com/AjunaWorkHub/AjunaVerse_MVP) | Web3 metaverse | AjunaVerse-current | L · T · E · I |
+| [AetSoftWorkHub/AetSoft_MVP](https://github.com/AetSoftWorkHub/AetSoft_MVP) | Web3 metaverse | AjunaVerse-current | L · T · I (via bit-identical `tasks.json` blob with AjunaVerse) |
+| [DLabsHungary-Hub9/DLabs-Platform-MVP2](https://github.com/DLabsHungary-Hub9/DLabs-Platform-MVP2) | Generic platform MVP | AjunaVerse-current | L |
+| [roamanbuild/OnyxVerse](https://github.com/roamanbuild/OnyxVerse) | Web3 metaverse | AjunaVerse-current | L |
+| [khaleb-dev/jackpot](https://github.com/khaleb-dev/jackpot) | Gambling | AjunaVerse-current | L |
+| [rony1235/Jp-Soccer](https://github.com/rony1235/Jp-Soccer) | Sports betting | AjunaVerse-current | L |
+| [mspkteam/williampotter](https://github.com/mspkteam/williampotter) | (unclear) | AjunaVerse-current | L |
+| [Andrii-888/0gRollplay](https://github.com/Andrii-888/0gRollplay) | dApp / gaming | AjunaVerse-earlier | L |
+| [prahaladbelavadi/CoinLocatorDemo](https://github.com/prahaladbelavadi/CoinLocatorDemo) | Crypto / locator demo | AjunaVerse-earlier | L |
+| [sky-cook/tokentradingdapp](https://github.com/sky-cook/tokentradingdapp) | Token-trading dApp | AjunaVerse-earlier | L |
+| [WilliamSuhosky/Property-Voting-DApp](https://github.com/WilliamSuhosky/Property-Voting-DApp) | Voting dApp | AjunaVerse-earlier | L |
+| [artemus-jarrett/blockchain-voting-system](https://github.com/artemus-jarrett/blockchain-voting-system) | Voting dApp | AjunaVerse-earlier | L |
+| [TechByteX/NitroGem](https://github.com/TechByteX/NitroGem) | (unclear) | AjunaVerse-earlier | L |
+| [jamesm-dev/NitroGem](https://github.com/jamesm-dev/NitroGem) | (unclear) | AjunaVerse-earlier | L |
+| [dappfusion/defi-real-estate](https://github.com/dappfusion/defi-real-estate) | Real-estate tokenization | AjunaVerse-earlier | L |
+| [InvescoHub/defi-real-estate](https://github.com/InvescoHub/defi-real-estate) | Real-estate tokenization | AjunaVerse-earlier | L |
+| [realfraction/realfraction](https://github.com/realfraction/realfraction) | Real-estate tokenization | realfraction | L (end-to-end review) |
 
 Note that for most repos only the loader code (**L**) has been directly verified — that's the signal the GitHub code search hit on. The multi-signal rows (AjunaVerse, AetSoft) are the ones we've inspected end-to-end. The rest could have additional signals (**T**, **E**, **I**) but those would need direct inspection of each repo to confirm.
 
@@ -128,12 +146,19 @@ Note that for most repos only the loader code (**L**) has been directly verified
 | [jamesm-dev](https://github.com/jamesm-dev) | user | Uncertain (not investigated) | — | Owns: `NitroGem` (duplicate repo name). |
 | [dappfusion](https://github.com/dappfusion) | user/org | Uncertain (not investigated) | — | Owns: `defi-real-estate`. |
 | [InvescoHub](https://github.com/InvescoHub) | user/org | Uncertain (not investigated) | — | Owns: `defi-real-estate` (duplicate repo name). |
+| [realfraction](https://github.com/realfraction) | org | **Operator-owned** (suspend) | A · S | Single-repo, single-purpose GitHub org. Contact email on lure-brand `realfraction.xyz` domain. Owns: `realfraction/realfraction` (realfraction-family generation). |
 
 The detailed signals justifying each operator-owned classification (and the methodology used to verify them) are in each incident's case file. See [Incidents analyzed in this repo](#incidents-analyzed-in-this-repo) below.
 
 ### Encountered a repo not on this list?
 
-If a recruiter pointed you at a repository that fits the same shape but isn't above, the briefing's diagnostic grep — `grep -RIn -E 'new Function\(["'\''"]require["'\''"],|verify\(setApiKey|x-app-request|"runOn":[[:space:]]*"folderOpen"' .` — will tell you in one shot whether it's the same campaign. If it hits, please open an issue with the URL (or, if you have push access, [add it to the IOCs](./incidents/2026-05-13-ajunaverse-mvp/iocs.csv) directly).
+If a recruiter pointed you at a repository that fits the same shape but isn't above, this diagnostic grep — widened to catch both the AjunaVerse-family and the realfraction-family generations in one shot — will tell you whether it's part of the broader cluster:
+
+```
+grep -RIn -E 'new Function\(["'\''"]require["'\''"],|verify\(setApiKey|x-app-request|x-secret-header|"runOn"[[:space:]]*:[[:space:]]*"folderOpen"|ipregionchecker\.com' --exclude-dir=node_modules --exclude-dir=.git .
+```
+
+If it hits, please open an issue with the URL (or, if you have push access, add it to the matching incident's `iocs.csv` directly: [AjunaVerse](./incidents/2026-05-13-ajunaverse-mvp/iocs.csv) or [realfraction](./incidents/2026-05-18-realfraction/iocs.csv)).
 
 ---
 
@@ -141,7 +166,8 @@ If a recruiter pointed you at a repository that fits the same shape but isn't ab
 
 | Date | Slug | Verdict | Quick links |
 |---|---|---|---|
-| 2026-05-13 | [ajunaverse-mvp](./incidents/2026-05-13-ajunaverse-mvp/) | confirmed malicious; member of the "Contagious Interview" TTP cluster, ≥15 sibling repos | [case file](./incidents/2026-05-13-ajunaverse-mvp/README.md) · [for devs](./incidents/2026-05-13-ajunaverse-mvp/briefing-for-developers.md) · [GH abuse](./incidents/2026-05-13-ajunaverse-mvp/abuse-report-github.md) · [Vercel abuse](./incidents/2026-05-13-ajunaverse-mvp/abuse-report-vercel.md) · [IOCs](./incidents/2026-05-13-ajunaverse-mvp/iocs.csv) · [rules](./incidents/2026-05-13-ajunaverse-mvp/detection-rules.md) |
+| 2026-05-13 | [ajunaverse-mvp](./incidents/2026-05-13-ajunaverse-mvp/) | confirmed malicious; member of the "Contagious Interview" TTP cluster, ≥15 sibling repos (AjunaVerse-family generations) | [case file](./incidents/2026-05-13-ajunaverse-mvp/README.md) · [for devs](./incidents/2026-05-13-ajunaverse-mvp/briefing-for-developers.md) · [GH abuse](./incidents/2026-05-13-ajunaverse-mvp/abuse-report-github.md) · [Vercel abuse](./incidents/2026-05-13-ajunaverse-mvp/abuse-report-vercel.md) · [IOCs](./incidents/2026-05-13-ajunaverse-mvp/iocs.csv) · [rules](./incidents/2026-05-13-ajunaverse-mvp/detection-rules.md) |
+| 2026-05-18 | [realfraction](./incidents/2026-05-18-realfraction/) | confirmed malicious; sibling generation in the same "Contagious Interview" cluster (realfraction-family loader); single repo so far | [case file](./incidents/2026-05-18-realfraction/README.md) · [for devs](./incidents/2026-05-18-realfraction/briefing-for-developers.md) · [GH abuse](./incidents/2026-05-18-realfraction/abuse-report-github.md) · [IOCs](./incidents/2026-05-18-realfraction/iocs.csv) · [rules](./incidents/2026-05-18-realfraction/detection-rules.md) |
 
 Each incident folder contains the master analysis (with full operator identification, attribution, and the specific permalinks / commit SHAs analyzed) plus the audience-targeted derivatives. Incident-level artifacts apply across the cluster they identified during analysis — the [Known campaign repositories](#known-campaign-repositories) table above is the live catalog of all known cluster members across all incidents.
 
