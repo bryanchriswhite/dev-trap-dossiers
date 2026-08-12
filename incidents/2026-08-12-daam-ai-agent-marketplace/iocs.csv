@@ -1,0 +1,29 @@
+type,value,first_seen,confidence,source,notes
+sha256,b2545579ec4d36b1ad7d4e30221293ebb1ae472e9d8fb440e80a90a7e7db019d,2026-08-12,high,daam-repo.zip,Malicious ZIP archive delivered via LimeWire
+sha256,9f63eb04c513bd8c12c2d7efce7b764d9731990fd434814899bd6621255262e9,2026-08-12,high,.git/hooks/post-checkout,Bundled malicious post-checkout hook
+sha256,fb7f9d7b0b8dbd76feeed437378493c6142f728db8e726417d20cec5735bf9f5,2026-08-12,high,backend/src/config/.svn/.DS_Store,Hidden 2901715-byte obfuscated JavaScript payload
+sha256,665d013769320c8fe90426b707864f9128fd419107ae1f69525cfece7217044b,2026-08-12,medium,video branch artifact,Video artifact hash; provenance/supporting evidence rather than malware by itself
+domain,iploglab.store,2026-08-12,high,.git/hooks/post-checkout,Hook dropper/bootstrap domain for OS-specific download-and-execute
+url,https://iploglab.store/api/terminal/bootstrap?os=mac&flag=7,2026-08-12,high,.git/hooks/post-checkout,macOS hook bootstrap URL; not contacted during analysis
+url,https://iploglab.store/api/terminal/bootstrap?os=linux&flag=7,2026-08-12,high,.git/hooks/post-checkout,Linux hook bootstrap URL; not contacted during analysis
+url,https://iploglab.store/api/terminal/windows?flag=7,2026-08-12,high,.git/hooks/post-checkout,Windows hook bootstrap URL; not contacted during analysis
+ipv4,216.126.225.243,2026-08-12,high,hidden payload,C2 infrastructure recovered from hidden payload; public reporting associates same IP/ports with Contagious Interview/OtterCookie-related activity
+url,http://216.126.225.243:8086/upload,2026-08-12,high,hidden payload,Recovered C2 endpoint; external reporting maps 8086 to automatic sensitive-file exfiltration in related samples
+url,http://216.126.225.243:8085/upload,2026-08-12,high,hidden payload,Recovered C2 endpoint; external reporting maps 8085 to on-demand file exfiltration in related samples
+url,http://216.126.225.243:8087,2026-08-12,high,hidden payload,Recovered C2 endpoint; external reporting maps 8087 to Socket.IO C2 in related samples
+url,https://limewire.com/d/vlTzy#wGXKqgjp2B,2026-08-12,high,recruiter message,Direct artifact delivery URL
+url,https://calendly.com/wallace55/30mins,2026-08-12,high,recruiter message,Scheduling infrastructure supplied in same recruitment flow
+account,daam602,2026-08-12,high,README installer URLs,Bitbucket workspace/user referenced by malicious README installer path
+url,https://bitbucket.org/daam602/ai-agent-marketplace/raw/main/scripts/install.sh,2026-08-12,high,codebase README,Remote installer URL embedded in confirmed malicious archive; live content not fetched
+url,https://bitbucket.org/daam602/ai-agent-marketplace/raw/main/scripts/install-windows.bat,2026-08-12,high,codebase README,Remote Windows installer URL embedded in confirmed malicious archive; live content not fetched
+npm-package,wallet-modal-223@1.0.0,2026-08-12,medium,package lockfile,Associated/suspicious dependency; tarball not independently analyzed
+npm-user,daam217,2026-08-12,medium,public npm metadata during investigation,Associated publisher/account for suspicious package; request provider investigation
+email,andersonalexanderigu505@hotmail.com,2026-08-12,low,Git metadata,Provenance/correlation only; do not treat as attribution
+email,williamherr8@gmail.com,2026-08-12,low,Git metadata,Provenance/correlation only; do not treat as attribution
+identity,Elizab Campbell <elizab.eth@Elizabs-Mac.local>,2026-08-12,low,Git metadata,Local/provenance string only; trivially forgeable
+identity,unknown <root@SERVER.(none)>,2026-08-12,low,Git metadata,Local/provenance string only; trivially forgeable
+identity,Cursor <cursoragent@cursor.com>,2026-08-12,low,Git metadata,Co-author/provenance string only
+code-path,backend/src/config/.svn/.DS_Store,2026-08-12,high,codebase branch,Hidden obfuscated JavaScript payload disguised as system metadata
+code-path,backend/src/data/mockData.js,2026-08-12,high,codebase branch,Creates CommonJS require inside ES-module project and imports hidden payload
+code-pattern,"createRequire() + require('../config/.svn/.DS_Store')",2026-08-12,high,backend/src/data/mockData.js,Runtime import path into hidden payload
+code-pattern,"!.DS_Store",2026-08-12,medium,backend .gitignore,Gitignore exception retaining .DS_Store-like files; intentionality signal when paired with hidden payload

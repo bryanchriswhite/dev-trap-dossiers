@@ -1,0 +1,176 @@
+{
+  "incident": "2026-08-12-daam-ai-agent-marketplace",
+  "title": "DAAM AI-agent marketplace developer-trap archive",
+  "first_observed": "2026-08-12",
+  "verdict": "confirmed-malicious",
+  "summary": "LimeWire-delivered ZIP for a purported decentralized AI-agent marketplace. Confirmed malicious via bundled Git post-checkout hook, README remote installer instructions, and normal backend startup importing a hidden 2.9 MB obfuscated JavaScript payload disguised as backend/src/config/.svn/.DS_Store.",
+  "hashes": {
+    "zip_sha256": "b2545579ec4d36b1ad7d4e30221293ebb1ae472e9d8fb440e80a90a7e7db019d",
+    "post_checkout_sha256": "9f63eb04c513bd8c12c2d7efce7b764d9731990fd434814899bd6621255262e9",
+    "hidden_payload_sha256": "fb7f9d7b0b8dbd76feeed437378493c6142f728db8e726417d20cec5735bf9f5",
+    "hidden_payload_size_bytes": 2901715,
+    "video_sha256": "665d013769320c8fe90426b707864f9128fd419107ae1f69525cfece7217044b"
+  },
+  "execution_paths": [
+    {
+      "name": "Git post-checkout hook",
+      "path": ".git/hooks/post-checkout",
+      "confidence": "high",
+      "description": "OS-specific download-and-execute from iploglab.store when Git checkout/switch occurs."
+    },
+    {
+      "name": "README installer",
+      "confidence": "high",
+      "description": "README directs victim to execute Bitbucket-hosted install.sh or install-windows.bat. Live endpoint contents were not fetched."
+    },
+    {
+      "name": "Backend startup hidden payload import",
+      "confidence": "high",
+      "description": "backend/src/data/mockData.js bridges ES modules to CommonJS require and imports ../config/.svn/.DS_Store, a 2.9 MB obfuscated JS payload."
+    }
+  ],
+  "domains": [
+    {
+      "value": "iploglab.store",
+      "role": "hook dropper/bootstrap domain",
+      "confidence": "high"
+    }
+  ],
+  "urls": [
+    {
+      "value": "https://iploglab.store/api/terminal/bootstrap?os=mac&flag=7",
+      "role": "macOS hook bootstrap",
+      "contacted": false,
+      "confidence": "high"
+    },
+    {
+      "value": "https://iploglab.store/api/terminal/bootstrap?os=linux&flag=7",
+      "role": "Linux hook bootstrap",
+      "contacted": false,
+      "confidence": "high"
+    },
+    {
+      "value": "https://iploglab.store/api/terminal/windows?flag=7",
+      "role": "Windows hook bootstrap",
+      "contacted": false,
+      "confidence": "high"
+    },
+    {
+      "value": "http://216.126.225.243:8086/upload",
+      "role": "payload C2 endpoint",
+      "contacted": false,
+      "confidence": "high"
+    },
+    {
+      "value": "http://216.126.225.243:8085/upload",
+      "role": "payload C2 endpoint",
+      "contacted": false,
+      "confidence": "high"
+    },
+    {
+      "value": "http://216.126.225.243:8087",
+      "role": "payload C2 endpoint",
+      "contacted": false,
+      "confidence": "high"
+    },
+    {
+      "value": "https://limewire.com/d/vlTzy#wGXKqgjp2B",
+      "role": "artifact delivery URL",
+      "confidence": "high"
+    },
+    {
+      "value": "https://calendly.com/wallace55/30mins",
+      "role": "scheduling infrastructure",
+      "confidence": "high"
+    },
+    {
+      "value": "https://bitbucket.org/daam602/ai-agent-marketplace/raw/main/scripts/install.sh",
+      "role": "README installer path",
+      "contacted": false,
+      "confidence": "high"
+    },
+    {
+      "value": "https://bitbucket.org/daam602/ai-agent-marketplace/raw/main/scripts/install-windows.bat",
+      "role": "README Windows installer path",
+      "contacted": false,
+      "confidence": "high"
+    }
+  ],
+  "ipv4": [
+    {
+      "value": "216.126.225.243",
+      "role": "payload C2 infrastructure",
+      "ports": [8085, 8086, 8087],
+      "confidence": "high",
+      "external_correlation": "Public reporting associates the same IP and ports with developer-targeted recruitment malware / Contagious Interview / OtterCookie-related infrastructure."
+    }
+  ],
+  "accounts": {
+    "bitbucket": [
+      {
+        "value": "daam602",
+        "role": "installer infrastructure workspace/user",
+        "confidence": "high"
+      },
+      {
+        "value": "daam602/ai-agent-marketplace",
+        "role": "repository referenced by README installer paths",
+        "confidence": "high"
+      }
+    ],
+    "npm": [
+      {
+        "value": "wallet-modal-223@1.0.0",
+        "role": "associated/suspicious dependency",
+        "confidence": "medium",
+        "note": "Package tarball was not downloaded or independently analyzed."
+      },
+      {
+        "value": "daam217",
+        "role": "associated npm publisher/account",
+        "confidence": "medium"
+      }
+    ],
+    "provenance_only": [
+      "psr511 <andersonalexanderigu505@hotmail.com>",
+      "Elizab Campbell <elizab.eth@Elizabs-Mac.local>",
+      "unknown <root@SERVER.(none)>",
+      "williamherr <williamherr8@gmail.com>",
+      "Cursor <cursoragent@cursor.com>"
+    ]
+  },
+  "code_indicators": [
+    {
+      "type": "file_path",
+      "value": "backend/src/config/.svn/.DS_Store",
+      "confidence": "high",
+      "description": "Hidden obfuscated JavaScript payload disguised as system metadata."
+    },
+    {
+      "type": "file_path",
+      "value": "backend/src/data/mockData.js",
+      "confidence": "high",
+      "description": "Runtime import path into hidden payload."
+    },
+    {
+      "type": "pattern",
+      "value": "createRequire() + require('../config/.svn/.DS_Store')",
+      "confidence": "high"
+    },
+    {
+      "type": "pattern",
+      "value": "!.DS_Store",
+      "confidence": "medium",
+      "description": "Gitignore exception retaining .DS_Store-like files; intentionality signal when paired with hidden payload."
+    }
+  ],
+  "campaign_correlation": {
+    "preferred_language": "Strong technical overlap with, and likely a variant/deployment of infrastructure associated with, Contagious Interview / OtterCookie.",
+    "do_not_claim": [
+      "Visible LinkedIn identity is the real operator",
+      "Git author emails identify perpetrators",
+      "wallet-modal-223 is independently confirmed malware",
+      "Live Bitbucket installer contents were analyzed"
+    ]
+  }
+}
